@@ -29,12 +29,16 @@ def init_db():
 # --- 4. 라우트(URL 규칙) 정의 ---
 
 # ⭐️⭐️⭐️ 새로 추가된 핵심 부분 ⭐️⭐️⭐️
-# 기본 주소 ('https://내사이트주소.com/')로 접속했을 때의 처리
-@app.route('/')
-def home():
-    # 'templates' 폴더 안에 있는 'index.html' 파일을 찾아서 사용자에게 보여줍니다.
+# ⭐️⭐️⭐️ 이 부분을 추가합니다! ⭐️⭐️⭐️
+# /user/유저ID 와 같은 경로로 접속했을 때도 index.html을 보여주기
+@app.route('/user/<user_id>')
+def home_with_user_id(user_id):
     return render_template('index.html')
 
+# view-order.html을 위한 규칙도 추가
+@app.route('/view-order/user/<user_id>')
+def view_order_with_user_id(user_id):
+    return render_template('view-order.html')
 # API 엔드포인트: 프론트엔드로부터 주문 정보를 받아 DB에 저장
 @app.route('/api/create-order', methods=['POST'])
 def create_order():
@@ -97,3 +101,4 @@ def get_order(user_id):
 
     except Exception as e:
         return jsonify({'success': False, 'message': '서버 오류 발생', 'error': str(e)}), 500
+
