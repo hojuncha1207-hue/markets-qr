@@ -206,8 +206,10 @@ async function generateOrderQR() {
 
     // 카카오톡을 통해 들어왔다고 가정하고, URL에서 사용자 ID를 가져옵니다.
     // 테스트 시에는 주소창에 ?user_id=test_user_123 와 같이 직접 추가해야 합니다.
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('user_id') || 'local_user'; // ID가 없으면 로컬 사용자로 지정
+    // 수정 후
+    const pathParts = window.location.pathname.split('/');
+// URL 경로의 맨 마지막 부분을 userId로 인식합니다.
+    const userId = pathParts[pathParts.length - 1];
 
     const orderData = {
         userId: userId,
@@ -247,4 +249,5 @@ window.onload = function() {
 </script>
 
 </body>
+
 </html>
