@@ -2,14 +2,15 @@ from flask import Flask, request, jsonify, render_template, redirect
 from flask_cors import CORS
 import sqlite3
 import json
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-DB_NAME = "orders.db"
+DB_PATH = os.path.join(os.environ.get('RENDER_DISK_PATH', '.'), 'orders.db')
 
 def init_db():
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS orders (
@@ -24,27 +25,31 @@ def init_db():
 # --- 리다이렉트(중간 다리) 규칙 ---
 @app.route('/launch/order')
 def launch_order():
-    # 템플릿 변수 {user_id}를 포함한 문자열 그대로 리다이렉트
     return redirect(f"/user/{{user_id}}")
 
-@app.route('/launch/view-order')
-def launch_view_order():
-    return redirect(f"/view-order/user/{{user_id}}")
+# ⭐️ 수정된 부분
+@app.route('/launch/view-orders')
+def launch_view_orders():
+    return redirect(f"/view-orders/user/{{user_id}}")
 
 # --- 최종 목적지 규칙 ---
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# /user/<user_id> 경로로 접속하면 index.html을 보여줌
 @app.route('/user/<user_id>')
 def home_with_user_id(user_id):
     return render_template('index.html')
 
-# /view-order/user/<user_id> 경로로 접속하면 view-order.html을 보여줌
-@app.route('/view-order/user/<user_id>')
-def view_order_with_user_id(user_id):
-    return render_template('view-order.html')
+# ⭐️ 수정된 부분
+@app.route('/view-orders.html')
+def view_orders_page():
+    return render_template('view-orders.html')
+
+# ⭐️ 수정된 부분
+@app.route('/view-orders/user/<user_id>')
+def view_orders_with_user_id(user_id):
+    return render_template('view-orders.html')
 
 # --- API 엔드포인트 ---
 @app.route('/api/create-order', methods=['POST'])
@@ -55,7 +60,7 @@ def create_order():
     user_id = data['userId']
     order_data_str = json.dumps(data)
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO orders (user_id, order_data) VALUES (?, ?)
@@ -70,7 +75,7 @@ def create_order():
 @app.route('/api/get-order/<user_id>', methods=['GET'])
 def get_order(user_id):
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute('''
             SELECT order_data FROM orders 
