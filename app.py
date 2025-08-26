@@ -69,4 +69,31 @@ def create_order():
 if __name__ == '__main__':
     init_db() # 서버 시작 시 DB 테이블이 있는지 확인/생성
     # host='0.0.0.0'은 Render 같은 클라우드 환경에서 필요합니다.
+
     app.run(host='0.0.0.0', port=5000, debug=True)
+# --- API 엔드포인트: 특정 사용자의 최신 주문 정보 조회 ---
+@app.route('/api/get-order/<user_id>', methods=['GET'])
+def get_order(user_id):
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+
+        # 해당 user_id를 가진 가장 최근의 주문 1개를 찾습니다.
+        cursor.execute('''
+            SELECT order_data FROM orders 
+            WHERE user_id = ? 
+            ORDER BY timestamp DESC LIMIT 1
+        ''', (user_id,))
+
+        result = cursor.fetchone()
+        conn.close()
+
+        if result:
+            # 저장된 데이터는 JSON 문자열이므로, 파이썬 딕셔너리로 변환하여 반환합니다.
+            order_data = json.loads(result[0])
+            return jsonify({'success': True, 'order': order_data}), 200
+        else:
+            return jsonify({'success': False, 'message': '주문 정보를 찾을 수 없습니다.'}), 404
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': '서버 오류 발생', 'error': str(e)}), 500
