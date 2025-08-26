@@ -20,8 +20,10 @@
             const container = document.getElementById('order-container');
 
             // 1. URL에서 사용자 ID 가져오기
-            const urlParams = new URLSearchParams(window.location.search);
-            const userId = urlParams.get('user_id');
+            // 수정 후
+            const pathParts = window.location.pathname.split('/');
+            // URL 경로의 맨 마지막 부분을 userId로 인식합니다.
+            const userId = pathParts[pathParts.length - 1];
 
             if (!userId) {
                 container.innerHTML = '<h2 id="error-message">사용자 ID를 찾을 수 없습니다.</h2>';
