@@ -1,6 +1,23 @@
 # --- 1. 필요한 라이브러리 불러오기 ---
 # render_template: HTML 파일을 불러와 사용자에게 보여주는 기능
-from flask import Flask, request, jsonify, render_template
+# redirect 기능을 사용하기 위해 추가합니다.
+from flask import Flask, request, jsonify, render_template, redirect
+
+# ... (기존 코드는 그대로 둡니다) ...
+
+# ⭐️⭐️⭐️ 이 부분을 추가합니다! ⭐️⭐️⭐️
+
+# [주문하기] 버튼을 위한 중간 다리
+@app.route('/launch/order')
+def launch_order():
+    # 사용자를 진짜 목적지인 /user/{user_id} 로 다시 보냅니다.
+    return redirect(f"/user/{user_id}")
+
+# [내 QR 확인] 버튼을 위한 중간 다리
+@app.route('/launch/view-order')
+def launch_view_order():
+    # 사용자를 진짜 목적지인 /view-order/user/{user_id} 로 다시 보냅니다.
+    return redirect(f"/view-order/user/{user_id}")
 from flask_cors import CORS # 다른 주소에서의 요청을 허용하기 위한 라이브러리
 import sqlite3
 import json
@@ -101,4 +118,5 @@ def get_order(user_id):
 
     except Exception as e:
         return jsonify({'success': False, 'message': '서버 오류 발생', 'error': str(e)}), 500
+
 
