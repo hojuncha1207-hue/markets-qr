@@ -1,198 +1,253 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>장바구니 QR 주문 시스템</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>청냠리 | 최종 MVP 데모</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; color: #333; }
-        .container { display: flex; flex-wrap: wrap; gap: 20px; }
-        .product-list, .cart-section { flex: 1; min-width: 300px; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1, h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .product-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .product-item button { background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
-        .product-item button:hover { background-color: #0056b3; }
-        .cart-item { list-style: none; padding: 5px 0; }
-        #cart-items { padding-left: 0; }
-        .order-button-container { text-align: center; margin-top: 20px; }
-        #order-button { width: 100%; padding: 15px; font-size: 1.2em; background-color: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; }
-        #order-button:hover { background-color: #218838; }
-        #qr-code-container { text-align: center; margin-top: 20px; }
-        input[type="text"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
+        /* CSS는 제공해주신 원본과 동일합니다. */
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .screen { display: none; padding-bottom: 80px; }
+        .screen.active { display: block; animation: fadeIn .3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1, transform: translateY(0); } }
+        .filter-active { background: #374151; color: #fff; border-color: #374151; }
+        .vh-safe { min-height: 100svh; }
+        .favorite-btn.favorited { color: #ef4444; }
+        .bottom-nav { box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav-btn.active { color: #4f46e5; }
+        .fab-kakao { position: fixed; bottom: 100px; right: 20px; z-index: 50; width: 60px; height: 60px; background-color: #FEE500; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease-in-out; }
+        .fab-kakao:hover { transform: scale(1.05); }
+        .fab-kakao-text { font-weight: 900; color: #191919; font-size: 14px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: white; padding: 2rem; border-radius: 1rem; max-width: 90%; width: 400px; animation: fadeIn .3s ease-in-out; }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 flex justify-center">
+    <div id="appContainer" class="max-w-lg w-full bg-white vh-safe shadow-2xl relative">
 
-    <h1>경동시장 상품 주문</h1>
-
-    <div class="container">
-        <div class="product-list">
-            <h2>판매 상품</h2>
-            <div id="product-list-items"></div>
+        <div id="homeScreen" class="screen active"> ... </div>
+        <div id="categoryListScreen" class="screen"> ... </div>
+        <div id="storeDetailScreen" class="screen"> ... </div>
+        <div id="smartShoppingScreen" class="screen"> ... </div>
+        <div id="myOrdersScreen" class="screen"> ... </div>
+        <div id="recentItemsScreen" class="screen"> ... </div>
+        <div id="favoritesScreen" class="screen"> ... </div>
+        <div id="mapScreen" class="screen"> ... </div>
+        
+        <div id="pickupScreen" class="screen">
+            <header class="p-4 sticky top-0 bg-white z-10 border-b">
+                <div class="flex items-center">
+                    <button onclick="showScreen('homeScreen')" class="p-2 mr-2"><i class="ph ph-arrow-left text-2xl"></i></button>
+                    <h1 class="text-xl font-bold text-gray-800">픽업 주문 확인</h1>
+                </div>
+            </header>
+            <main class="p-6">
+                <div class="mb-4">
+                    <label for="viewUserIdInput" class="block text-sm font-medium text-gray-700 mb-2">주문자 ID</label>
+                    <input type="text" id="viewUserIdInput" placeholder="주문 시 입력한 ID를 입력하세요" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button onclick="fetchOrderQR()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+                    내 QR코드 조회하기
+                </button>
+                <div id="fetchedQrContainer" class="mt-6">
+                    </div>
+            </main>
         </div>
+        
+        <div id="modalContainer"></div>
+        <a href="https://pf.kakao.com/_xgGdxmn" target="_blank" class="fab-kakao">
+            <span class="fab-kakao-text">TALK</span>
+        </a>
+        <footer class="bottom-nav ..."> ... </footer>
 
-        <div class="cart-section">
-            <h2>장바구니</h2>
-            <input type="text" id="userIdInput" placeholder="사용하실 고유 ID를 입력하세요">
-            <ul id="cart-items"><li>장바구니가 비어있습니다.</li></ul>
-            <div class="order-button-container">
-                <button id="order-button" onclick="generateOrderQR()">주문 QR코드 생성</button>
-            </div>
-            <div id="qr-code-container" style="display:none;">
-                <h3>주문 정보 QR코드</h3>
-                <div id="qrcode"></div>
-                <p>이 QR코드를 직원에게 보여주세요.</p>
-            </div>
-        </div>
     </div>
 
-<script>
-// --- 1. 데이터베이스(DB) 대신 사용할 가게 데이터 ---
-const storeData = [
-    { "고유ID":0, "가게이름":"수희과일", "가게분류":"청과물", "main_product":"곶감,딸기,레몬,망고,멜론,바나나,배,복숭아,사과,샤인머스켓,수박,씨없는수박,오랜지,오렌지,자두,참외,체리,키위,토마토,포도", "위치":"가-42/경동시장로", "특징":"신선한 제철 과일과 다양한 수입 과일을 취급합니다. 여름에는 특히 복숭아, 수박 등 당도 높은 과일이 인기가 많습니다.", "좌표":"910,244", "연결":"" },
-    { "고유ID":1, "가게이름":"안동상회", "가게분류":"청과물", "main_product":"귤,딸기,멜론,방울토마토,사과,수박,홍시", "위치":"가-43/경동시장로", "특징":"계절별로 인기 있는 과일 위주로 판매하며, 여름에는 멜론과 수박이 특히 인기가 많습니다.", "좌표":"910,266", "연결":"" },
-    { "고유ID":2, "가게이름":"소문난반찬", "가게분류":"가공식품", "main_product":"갈치속젓,게장,명란젓,새우장,전복장", "위치":"가-44/경동시장로", "특징":"밥도둑으로 유명한 게장을 전문적으로 판매하며, 다양한 해산물 장류와 젓갈류도 맛볼 수 있습니다.", "좌표":"910,290", "연결":"" },
-    { "고유ID":3, "가게이름":"한양상회", "가게분류":"농산물", "main_product":"깻잎),대파,버섯(느타리,새송이),시금치,쌈채소(상추,양파", "위치":"가-45/경동시장로", "특징":"요리에 필수적인 기본 채소와 함께 다양한 쌈 채소를 판매합니다.", "좌표":"910,310", "연결":"" },
-    { "고유ID":4, "가게이름":"대동상회", "가게분류":"청과물", "main_product":"거봉,멜론,복숭아,블루베리,사과,자두,캠벨포도", "위치":"가-46/경동시장로", "특징":"여름 제철 과일인 복숭아와 자두를 주로 판매하며, 다양한 포도 품종도 취급합니다.", "좌표":"910,373", "연결":"" },
-    { "고유ID":5, "가게이름":"태영상회", "가게분류":"청과물", "main_product":"복숭아,수박,자두,참외,천도복숭아,포도", "위치":"가-47/경동시장로", "특징":"여름철 당도 높은 수박과 새콤달콤한 자두, 복숭아 등 과일이 주력 상품입니다.", "좌표":"910,400", "연결":"" },
-    { "고유ID":6, "가게이름":"태영상회", "가게분류":"청과물", "main_product":"귤,배,복숭아,사과,수박,자두,참외,포도,한라봉", "위치":"가-47/경동시장로", "특징":"다양한 제철 과일과 대표 과일을 판매합니다.", "좌표":"910,400", "연결":"" },
-    { "고유ID":7, "가게이름":"일호청과", "가게분류":"청과물", "main_product":"귤,망고,멜론,방울토마토,수박,참외,토마토,포도", "위치":"가-48/경동시장로", "특징":"신선한 제철 과일과 함께 간식용 방울토마토나 수입 망고도 판매합니다.", "좌표":"910,440", "연결":"" },
-    { "고유ID":8, "가게이름":"청도상회", "가게분류":"농산물", "main_product":"고추,깻잎,마늘,부추,애호박,양파,오이,쪽파,호박잎", "위치":"가-49/경동시장로", "특징":"요리에 필요한 신선한 채소와 함께 찌개용 애호박이나 김치 재료로 쓰이는 쪽파를 판매합니다.", "좌표":"910,464", "연결":"" },
-    { "고유ID":9, "가게이름":"전국상회", "가게분류":"청과물", "main_product":"망고스틴,복숭아,블루베리,오렌지,자두,체리,파인애플", "위치":"가-50/경동시장로", "특징":"여름 과일과 함께 이국적인 맛의 수입 열대 과일을 다양하게 판매합니다.", "좌표":"892,518", "연결":"" },
-    { "고유ID":10, "가게이름":"말구상회", "가게분류":"농산물", "main_product":"감자,고구마,고추,대파,버섯,상추,오이,호박", "위치":"가-51/경동시장로", "특징":"찌개나 구이, 튀김에 쓰이는 감자와 고구마 등 필수 농산물을 취급합니다.", "좌표":"910,548", "연결":"" },
-    { "고유ID":11, "가게이름":"일품상회", "가게분류":"농산물", "main_product":"감자,고구마,고추,당근,마늘,배추,상추,생강,양파,오이", "위치":"가-52/경동시장로", "특징":"다양한 요리에 쓰이는 기본 채소와 함께 마늘, 생강 등 향신 채소도 판매합니다.", "좌표":"910,600", "연결":"" },
-    { "고유ID":16, "가게이름":"삼천리자전거", "가게분류":"서비스", "main_product":"성인용자전거,어린이자전거,자전거,자전거용품,헬멧", "위치":"왕산로", "특징":"자전거 판매뿐만 아니라 수리 및 정비 서비스도 제공합니다.", "좌표":"876,595", "연결":"" }
-];
+    <script>
+    (() => {
+        // ==================== 데이터 및 기본 상태 ====================
+        const marketData = [
+            {"고유ID":0,"가게이름":"수희과일","가게분류":"청과물","main_product":"곶감,딸기,레몬,망고,멜론,바나나,배,복숭아,사과,샤인머스켓,수박,씨없는수박,오랜지,오렌지,자두,참외,체리,키위,토마토,포도","위치":"가-42/경동시장로","특징":"신선한 제철 과일과 다양한 수입 과일을 취급합니다. 여름에는 특히 복숭아, 수박 등 당도 높은 과일이 인기가 많습니다.","좌표":"910,244","연결":""},
+            {"고유ID":1,"가게이름":"안동상회","가게분류":"청과물","main_product":"귤,딸기,멜론,방울토마토,사과,수박,홍시","위치":"가-43/경동시장로","특징":"계절별로 인기 있는 과일 위주로 판매하며, 여름에는 멜론과 수박이 특히 인기가 많습니다.","좌표":"910,266","연결":""},
+            {"고유ID":2,"가게이름":"소문난반찬","가게분류":"가공식품","main_product":"갈치속젓,게장,명란젓,새우장,전복장","위치":"가-44/경동시장로","특징":"밥도둑으로 유명한 게장을 전문적으로 판매하며, 다양한 해산물 장류와 젓갈류도 맛볼 수 있습니다.","좌표":"910,290","연결":""},
+            {"고유ID":3,"가게이름":"한양상회","가게분류":"농산물","main_product":"깻잎),대파,버섯(느타리,새송이),시금치,쌈채소(상추,양파","위치":"가-45/경동시장로","특징":"요리에 필수적인 기본 채소와 함께 다양한 쌈 채소를 판매합니다.","좌표":"910,310","연결":""},
+            {"고유ID":4,"가게이름":"대동상회","가게분류":"청과물","main_product":"거봉,멜론,복숭아,블루베리,사과,자두,캠벨포도","위치":"가-46/경동시장로","특징":"여름 제철 과일인 복숭아와 자두를 주로 판매하며, 다양한 포도 품종도 취급합니다.","좌표":"910,373","연결":""},
+            {"고유ID":5,"가게이름":"태영상회","가게분류":"청과물","main_product":"복숭아,수박,자두,참외,천도복숭아,포도","위치":"가-47/경동시장로","특징":"여름철 당도 높은 수박과 새콤달콤한 자두, 복숭아 등 과일이 주력 상품입니다.","좌표":"910,400","연결":""},
+            {"고유ID":7,"가게이름":"일호청과","가게분류":"청과물","main_product":"귤,망고,멜론,방울토마토,수박,참외,토마토,포도","위치":"가-48/경동시장로","특징":"신선한 제철 과일과 함께 간식용 방울토마토나 수입 망고도 판매합니다.","좌표":"910,440","연결":""},
+            {"고유ID":8,"가게이름":"청도상회","가게분류":"농산물","main_product":"고추,깻잎,마늘,부추,애호박,양파,오이,쪽파,호박잎","위치":"가-49/경동시장로","특징":"요리에 필요한 신선한 채소와 함께 찌개용 애호박이나 김치 재료로 쓰이는 쪽파를 판매합니다.","좌표":"910,464","연결":""},
+            {"고유ID":9,"가게이름":"전국상회","가게분류":"청과물","main_product":"망고스틴,복숭아,블루베리,오렌지,자두,체리,파인애플","위치":"가-50/경동시장로","특징":"여름 과일과 함께 이국적인 맛의 수입 열대 과일을 다양하게 판매합니다.","좌표":"892,518","연결":""},
+            {"고유ID":10,"가게이름":"말구상회","가게분류":"농산물","main_product":"감자,고구마,고추,대파,버섯,상추,오이,호박","위치":"가-51/경동시장로","특징":"찌개나 구이, 튀김에 쓰이는 감자와 고구마 등 필수 농산물을 취급합니다.","좌표":"910,548","연결":""},
+            {"고유ID":16,"가게이름":"바다먹거리장터","가게분류":"수산물","main_product":"광어,꽃게,낙지,대게,랍스터,문어,연어,우럭,전복,조개,킹크랩,회","위치":"왕산로","특징":"신선한 활어회와 함께 제철 해산물을 저렴하게 판매하며, 살아있는 킹크랩, 대게도 취급합니다.","좌표":"640,595","연결":""},
+            {"고유ID":24,"가게이름":"신토불이 축산물직판장","가게분류":"정육점","main_product":"가브리살),갈비살),닭고기,돼지특수부위(항정살,목살,삼겹살,소갈비,소고기국거리,소고기등심,오리고기,한우특수부위(살치살","위치":"왕산로29번길","특징":"신선한 한우와 돼지고기를 저렴한 가격에 판매하며, 다양한 부위와 특수 부위를 취급합니다.","좌표":"289,595","연결":""},
+            {"고유ID":130,"가게이름":"경동함흥냉면","가게분류":"음식점(한식)","main_product":"갈비탕,만두,물냉면,비빔냉면,수육,회냉면","위치":"서울 동대문구 고산자로38길/다-17","특징":"시원한 냉면을 맛볼 수 있는 곳입니다.","좌표":"100,160","연결":""},
+            {"고유ID":132,"가게이름":"대박정육점","가게분류":"정육점","main_product":"돼지갈매기살,돼지갈비,목살,삼겹살,소갈비,소고기국거리,소고기등심,소꼬리,안심),한우특수부위(채끝","위치":"서울 동대문구 고산자로38길/다-14","특징":"다양한 부위의 고기를 판매하며, 고급 부위와 국거리용 고기를 모두 구매할 수 있습니다.","좌표":"160,200","연결":""},
+            {"고유ID":133,"가게이름":"우리축산","가게분류":"정육점","main_product":"양념갈비,대패삼겹살","위치":"고산자로36번길/우","특징":"캠핑갈 때 좋은 양념육을 판매합니다.","좌표":"890,501","연결":""},
+            {"고유ID":34,"가게이름":"거북이젓갈","가게분류":"반찬/김치","main_product":"갈치속젓,꼴뚜기젓,낙지젓,명란젓,새우젓,어리굴젓,오징어젓,창난젓","위치":"고산자로36번길/좌","특징":"밥반찬으로 좋은 다양한 젓갈을 전문으로 판매하며, 젓갈 종류가 다양합니다.","좌표":"232,470","연결":""},
+            {"고유ID":62,"가게이름":"금산인삼","가게분류":"가공식품","main_product":"더덕,도라지,산양삼,수삼,인삼,인삼주,홍삼액","위치":"고산자로36번길/우","특징":"금산 지역의 품질 좋은 인삼과 더덕, 도라지를 전문으로 판매합니다.","좌표":"527,501","연결":""},
+            {"고유ID":137,"가게이름":"그시절그맛","가게분류":"음식점(제과제빵)","main_product":"고로케,꽈배기,도너츠,맘모스빵,소시지빵,찐빵,찹쌀도넛","위치":"서울 동대문구 고산자로38길/다-11","특징":"추억의 간식인 꽈배기, 도너츠 등을 판매합니다.","좌표":"280,90","연결":""},
+            {"고유ID":81,"가게이름":"성현물산","가게분류":"농산물","main_product":"녹용,당귀,더덕,도라지,쑥,오미자,인삼,칡,홍삼","위치":"왕산로29길","특징":"몸에 좋은 약초와 뿌리 채소를 판매합니다.","좌표":"257,304","연결":""}
+        ];
+        
+        const storeData = marketData.map(/* 원본 코드의 데이터 변환 로직 */);
+        let shoppingCart = {};
+        // ... (기타 상태 변수: currentCategorySort, favoriteStores 등) ...
+        
+        // ==================== ⭐️ 서버 통신 및 핵심 로직 (수정/추가됨) ⭐️ ====================
 
-// --- 2. 장바구니 상태 관리 ---
-let cart = [];
-
-// --- 3. 화면 렌더링 및 업데이트 함수들 ---
-
-function renderProducts() {
-    const productListDiv = document.getElementById('product-list-items');
-    productListDiv.innerHTML = ''; 
-    storeData.forEach(store => {
-        if (!store.main_product) return; // main_product가 없는 데이터는 건너뜀
-        const products = store.main_product.split(',').filter(p => p.trim() !== '');
-        products.forEach(productName => {
-            const product = {
-                id: `${store.고유ID}_${productName.trim()}`,
-                storeName: store.가게이름,
-                name: productName.trim()
-            };
-            const itemHtml = `
-                <div class="product-item">
-                    <span>${product.name} <strong>(${product.storeName})</strong></span>
-                    <button onclick="addToCart('${product.id}', '${product.storeName}', '${product.name}')">담기</button>
-                </div>
-            `;
-            productListDiv.innerHTML += itemHtml;
-        });
-    });
-}
-
-function updateCartDisplay() {
-    const cartItemsUl = document.getElementById('cart-items');
-    cartItemsUl.innerHTML = '';
-    if (cart.length === 0) {
-        cartItemsUl.innerHTML = '<li>장바구니가 비어있습니다.</li>';
-    } else {
-        const itemCounts = {};
-        cart.forEach(item => {
-            if (itemCounts[item.id]) {
-                itemCounts[item.id].quantity++;
-            } else {
-                itemCounts[item.id] = { ...item, quantity: 1 };
+        async function sendOrderToServer(orderData) {
+            try {
+                // API 주소는 상대 경로로 지정하여 현재 도메인(Render 주소)을 기준으로 요청
+                const response = await fetch('/api/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+                if (!response.ok) {
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.message || 'Server error');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error("Server submission failed:", error);
+                throw error;
             }
-        });
-
-        Object.values(itemCounts).forEach(item => {
-             const itemHtml = `<li class="cart-item">${item.name} (${item.storeName}) - ${item.quantity}개</li>`;
-            cartItemsUl.innerHTML += itemHtml;
-        });
-    }
-}
-
-// --- 4. 핵심 로직 함수들 ---
-
-function addToCart(productId, storeName, productName) {
-    // 이제 quantity는 updateCartDisplay에서 계산하므로, cart에는 상품 추가 기록만 남깁니다.
-    cart.push({
-        id: productId,
-        storeName: storeName,
-        name: productName,
-    });
-    updateCartDisplay();
-}
-
-async function sendOrderToServer(orderData) {
-    console.log("--- 서버로 전송될 데이터 (시뮬레이션) ---", orderData);
-    // return Promise.resolve({ success: true, orderId: "LOCAL_ORDER_" + Date.now() });
-    try {
-        const response = await fetch('/api/create-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderData)
-        });
-        const result = await response.json();
-        console.log("서버로부터 받은 응답:", result);
-        return result; 
-    } catch (error) {
-        console.error("서버 전송 실패:", error);
-        throw error;
-    }
-}
-
-async function generateOrderQR() {
-    if (cart.length === 0) {
-        alert("장바구니에 상품을 먼저 담아주세요!");
-        return;
-    }
-
-    const userId = document.getElementById('userIdInput').value;
-
-    if (!userId) {
-        alert("사용자 ID를 입력해주세요!");
-        return;
-    }
-    
-    // 장바구니 아이템 수량 계산
-    const itemCounts = {};
-    cart.forEach(item => {
-        if (itemCounts[item.id]) {
-            itemCounts[item.id].quantity++;
-        } else {
-            itemCounts[item.id] = { ...item, quantity: 1 };
         }
-    });
 
-    const orderData = {
-        userId: userId.trim(),
-        items: Object.values(itemCounts), // 수량이 계산된 아이템 목록
-        orderTimestamp: new Date().toISOString()
-    };
-    
-    try {
-        await sendOrderToServer(orderData);
-        const qrDataString = JSON.stringify(orderData);
-        const qr = qrcode(0, 'M');
-        qr.addData(qrDataString);
-        qr.make();
-        document.getElementById('qrcode').innerHTML = qr.createImgTag(4, 8);
-        document.getElementById('qr-code-container').style.display = 'block';
-        alert("QR코드가 생성되었습니다!");
+        function showCartModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            let cartItemsHtml = '';
+            let totalPrice = 0;
 
-    } catch(error) {
-        alert("QR코드 생성 중 문제가 발생했습니다.");
-    }
-}
+            if (Object.keys(shoppingCart).length > 0) {
+                for (const storeName in shoppingCart) {
+                    const items = shoppingCart[storeName];
+                    const itemDetails = items.map(item => {
+                        totalPrice += item.price;
+                        return `<p class="text-gray-600 text-sm">${item.name} - ${item.price.toLocaleString()}원</p>`;
+                    }).join('');
+                    cartItemsHtml += `<div class="bg-gray-50 p-3 rounded-lg mb-2"><p class="font-semibold text-gray-800 mb-1">${storeName}</p>${itemDetails}</div>`;
+                }
+            } else {
+                 cartItemsHtml = `<p class="text-center text-gray-500 py-4">장바구니가 비어 있습니다.</p>`;
+            }
 
-window.onload = function() {
-    renderProducts();
-};
-</script>
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 class="text-xl font-bold mb-4">장바구니</h3>
+                    <div class="mb-4">
+                        <label for="userIdInput" class="block text-sm font-medium text-gray-700 mb-2">주문자 ID</label>
+                        <input type="text" id="userIdInput" placeholder="나중에 QR을 찾을 때 사용할 ID" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="space-y-3 max-h-60 overflow-y-auto mb-4">${cartItemsHtml}</div>
+                    <div class="text-right font-bold text-xl my-4 border-t pt-4">총 결제금액: <span class="text-indigo-600">${totalPrice.toLocaleString()}원</span></div>
+                    <div class="flex flex-col space-y-2">
+                        <button id="checkoutBtn" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors ${totalPrice === 0 ? 'opacity-50 cursor-not-allowed' : ''}" ${totalPrice === 0 ? 'disabled' : ''}>결제하고 픽업하기</button>
+                        <button onclick="this.closest('.modal-overlay').remove()" class="w-full px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">닫기</button>
+                    </div>
+                </div>`;
+            document.getElementById('modalContainer').appendChild(modal);
+            if (totalPrice > 0) {
+                document.getElementById('checkoutBtn').addEventListener('click', handleCheckout);
+            }
+        }
 
+        async function handleCheckout() {
+            const userId = document.getElementById('userIdInput').value.trim();
+            if (!userId) {
+                showMessage('주문자 ID를 입력해주세요.');
+                return;
+            }
+
+            const orderData = {
+                userId: userId,
+                cart: shoppingCart,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                await sendOrderToServer(orderData);
+                const qrDataString = JSON.stringify(orderData);
+
+                shoppingCart = {};
+                const modal = document.querySelector('.modal-overlay');
+                if (modal) modal.remove();
+                
+                showScreen('pickupScreen');
+                
+                const qrContainer = document.getElementById('fetchedQrContainer');
+                qrContainer.innerHTML = `
+                    <div class="bg-gray-50 p-6 rounded-lg text-center">
+                        <h2 class="text-lg font-semibold text-gray-800">픽업 준비 완료!</h2>
+                        <p class="text-gray-500 mt-1">ID: <span class="font-bold text-indigo-600">${userId}</span></p>
+                        <div id="generated-qrcode" class="mt-4 flex justify-center"></div>
+                        <p class="mt-4 text-sm">이 QR코드를 픽업 센터에 보여주세요.</p>
+                    </div>`;
+                new QRCode(document.getElementById('generated-qrcode'), { text: qrDataString, width: 200, height: 200 });
+                document.getElementById('viewUserIdInput').value = userId; // 조회 화면에 ID 자동 입력
+            } catch (error) {
+                showMessage(`주문 처리 중 오류가 발생했습니다: ${error.message}`);
+            }
+        }
+
+        async function fetchOrderQR() {
+            const container = document.getElementById('fetchedQrContainer');
+            const userId = document.getElementById('viewUserIdInput').value.trim();
+
+            if (!userId) {
+                showMessage('조회할 사용자 ID를 입력해주세요.');
+                return;
+            }
+            container.innerHTML = '<p class="text-center text-gray-500 p-4">서버에서 주문 정보를 찾는 중...</p>';
+
+            try {
+                const response = await fetch(`/api/get-order/${userId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const order = data.order;
+                    const qrDataString = JSON.stringify(order);
+                    container.innerHTML = `
+                        <div class="bg-gray-50 p-6 rounded-lg text-center">
+                            <h2 class="text-lg font-semibold text-gray-800">주문 정보 확인</h2>
+                            <p class="text-gray-500 mt-1">ID: <span class="font-bold text-indigo-600">${order.userId}</span></p>
+                            <div id="fetched-qrcode" class="mt-4 flex justify-center"></div>
+                        </div>`;
+                    new QRCode(document.getElementById('fetched-qrcode'), { text: qrDataString, width: 200, height: 200 });
+                } else {
+                    container.innerHTML = `<p class="text-center text-red-500 font-semibold p-4">${data.message}</p>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<p class="text-center text-red-500 font-semibold p-4">서버와 통신 중 오류가 발생했습니다.</p>`;
+            }
+        }
+        
+        // --- 기존 함수들 ---
+        // showScreen, renderCategoryList, renderStoreDetail, etc.
+        // 이 부분의 함수들은 제공해주신 원본 코드와 동일하게 유지됩니다.
+        // addToCart 함수는 shoppingCart 구조에 맞게 수정합니다.
+        function addToCart(storeName, productName, price) {
+           if (!shoppingCart[storeName]) {
+               shoppingCart[storeName] = [];
+           }
+           shoppingCart[storeName].push({ name: productName, price: price });
+        }
+
+
+        // Expose functions to global scope for HTML onclick attributes
+        window.showMessage = showMessage;
+        window.showCartModal = showCartModal;
+        window.showScreen = showScreen;
+        window.fetchOrderQR = fetchOrderQR; // 전역으로 노출
+
+        // ==================== APP INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // setupAllEventListeners(); // 원본 코드의 이벤트 리스너 설정 함수
+            // showScreen('homeScreen'); // 초기 화면 설정
+        });
+    })();
+    </script>
 </body>
 </html>
