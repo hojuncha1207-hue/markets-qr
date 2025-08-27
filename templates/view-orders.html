@@ -33,9 +33,20 @@
                 if (data.success) {
                     const order = data.order;
                     const qrDataString = JSON.stringify(order);
+                    let itemsHtml = '';
+                    for (const storeName in order.cart) {
+                        const items = order.cart[storeName];
+                        const itemNames = items.map(item => item.name).join(', ');
+                        itemsHtml += `<p><b>${storeName}:</b> ${itemNames}</p>`;
+                    }
+
                     container.innerHTML = `
                         <div id="fetched-qrcode"></div>
                         <h3 style="margin-top: 1rem;">주문자 ID: ${order.userId}</h3>
+                        <div style="text-align: left; margin-top: 1rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                            <h4>주문 내역</h4>
+                            ${itemsHtml}
+                        </div>
                     `;
                     new QRCode(document.getElementById("fetched-qrcode"), {
                         text: qrDataString,
