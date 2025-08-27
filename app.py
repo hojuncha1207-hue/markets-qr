@@ -73,7 +73,7 @@ def create_order():
 def get_order(user_id):
     conn = None
     try:
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = psycopg2.connect(postgresql://neondb_owner:npg_G1D7eNAakmvC@ep-gentle-flower-a1xl0dan-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require)
         cursor = conn.cursor()
         cursor.execute('SELECT order_data FROM orders WHERE user_id = %s', (user_id,))
         result = cursor.fetchone()
@@ -94,3 +94,4 @@ if __name__ == '__main__':
     init_db()
     # host='0.0.0.0'은 Render 같은 클라우드 환경에서 필요합니다.
     app.run(host='0.0.0.0', port=5000, debug=True)
+
