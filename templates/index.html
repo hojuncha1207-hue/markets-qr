@@ -90,7 +90,11 @@
             {"고유ID":81,"가게이름":"성현물산","가게분류":"농산물","main_product":"녹용,당귀,더덕,도라지,쑥,오미자,인삼,칡,홍삼","위치":"왕산로29길","특징":"몸에 좋은 약초와 뿌리 채소를 판매합니다.","좌표":"257,304","연결":""}
         ];
         
-        const storeData = marketData.map(/* 원본 코드의 데이터 변환 로직 */);
+        const storeData = marketData.map(store => {
+    // ⭐️ main_product가 있을 때만 split을 실행하고, 없으면 빈 배열을 사용
+            const productNames = store.main_product ? store.main_product.split(',') : [];
+    // ... (이하 코드는 동일)
+        });
         let shoppingCart = {};
         // ... (기타 상태 변수: currentCategorySort, favoriteStores 등) ...
         
@@ -251,3 +255,4 @@
     </script>
 </body>
 </html>
+
