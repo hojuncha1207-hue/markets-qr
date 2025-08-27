@@ -6,33 +6,35 @@
     <title>장바구니 QR 주문 시스템</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
     <style>
-        /* CSS 스타일은 이전과 동일 */
-        body { font-family: sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; color: #333; }
         .container { display: flex; flex-wrap: wrap; gap: 20px; }
         .product-list, .cart-section { flex: 1; min-width: 300px; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         h1, h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .product-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .product-item button { background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .product-item button { background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
+        .product-item button:hover { background-color: #0056b3; }
         .cart-item { list-style: none; padding: 5px 0; }
         #cart-items { padding-left: 0; }
         .order-button-container { text-align: center; margin-top: 20px; }
-        #order-button { width: 100%; padding: 15px; font-size: 1.2em; background-color: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        #order-button { width: 100%; padding: 15px; font-size: 1.2em; background-color: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; }
+        #order-button:hover { background-color: #218838; }
         #qr-code-container { text-align: center; margin-top: 20px; }
-        input[type="text"] { width: calc(100% - 20px); padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="text"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
     </style>
 </head>
 <body>
+
     <h1>경동시장 상품 주문</h1>
+
     <div class="container">
         <div class="product-list">
             <h2>판매 상품</h2>
             <div id="product-list-items"></div>
         </div>
+
         <div class="cart-section">
             <h2>장바구니</h2>
-            
-            <input type="text" id="userIdInput" placeholder="사용하실 고유 ID를 입력하세요 (예: my_id_123)">
-            
+            <input type="text" id="userIdInput" placeholder="사용하실 고유 ID를 입력하세요">
             <ul id="cart-items"><li>장바구니가 비어있습니다.</li></ul>
             <div class="order-button-container">
                 <button id="order-button" onclick="generateOrderQR()">주문 QR코드 생성</button>
@@ -46,49 +48,151 @@
     </div>
 
 <script>
-    // 가게 데이터, 장바구니 변수, 렌더링 함수 등은 이전과 동일
-    const storeData = [ /* 이전 코드의 가게 데이터 그대로 붙여넣기 */ ];
-    let cart = [];
-    function renderProducts() { /* 이전 코드와 동일 */ }
-    function updateCartDisplay() { /* 이전 코드와 동일 */ }
-    function addToCart(productId, storeName, productName) { /* 이전 코드와 동일 */ }
-    async function sendOrderToServer(orderData) { /* 이전 코드와 동일 (fetch 주소 확인) */ }
+// --- 1. 데이터베이스(DB) 대신 사용할 가게 데이터 ---
+const storeData = [
+    { "고유ID":0, "가게이름":"수희과일", "가게분류":"청과물", "main_product":"곶감,딸기,레몬,망고,멜론,바나나,배,복숭아,사과,샤인머스켓,수박,씨없는수박,오랜지,오렌지,자두,참외,체리,키위,토마토,포도", "위치":"가-42/경동시장로", "특징":"신선한 제철 과일과 다양한 수입 과일을 취급합니다. 여름에는 특히 복숭아, 수박 등 당도 높은 과일이 인기가 많습니다.", "좌표":"910,244", "연결":"" },
+    { "고유ID":1, "가게이름":"안동상회", "가게분류":"청과물", "main_product":"귤,딸기,멜론,방울토마토,사과,수박,홍시", "위치":"가-43/경동시장로", "특징":"계절별로 인기 있는 과일 위주로 판매하며, 여름에는 멜론과 수박이 특히 인기가 많습니다.", "좌표":"910,266", "연결":"" },
+    { "고유ID":2, "가게이름":"소문난반찬", "가게분류":"가공식품", "main_product":"갈치속젓,게장,명란젓,새우장,전복장", "위치":"가-44/경동시장로", "특징":"밥도둑으로 유명한 게장을 전문적으로 판매하며, 다양한 해산물 장류와 젓갈류도 맛볼 수 있습니다.", "좌표":"910,290", "연결":"" },
+    { "고유ID":3, "가게이름":"한양상회", "가게분류":"농산물", "main_product":"깻잎),대파,버섯(느타리,새송이),시금치,쌈채소(상추,양파", "위치":"가-45/경동시장로", "특징":"요리에 필수적인 기본 채소와 함께 다양한 쌈 채소를 판매합니다.", "좌표":"910,310", "연결":"" },
+    { "고유ID":4, "가게이름":"대동상회", "가게분류":"청과물", "main_product":"거봉,멜론,복숭아,블루베리,사과,자두,캠벨포도", "위치":"가-46/경동시장로", "특징":"여름 제철 과일인 복숭아와 자두를 주로 판매하며, 다양한 포도 품종도 취급합니다.", "좌표":"910,373", "연결":"" },
+    { "고유ID":5, "가게이름":"태영상회", "가게분류":"청과물", "main_product":"복숭아,수박,자두,참외,천도복숭아,포도", "위치":"가-47/경동시장로", "특징":"여름철 당도 높은 수박과 새콤달콤한 자두, 복숭아 등 과일이 주력 상품입니다.", "좌표":"910,400", "연결":"" },
+    { "고유ID":6, "가게이름":"태영상회", "가게분류":"청과물", "main_product":"귤,배,복숭아,사과,수박,자두,참외,포도,한라봉", "위치":"가-47/경동시장로", "특징":"다양한 제철 과일과 대표 과일을 판매합니다.", "좌표":"910,400", "연결":"" },
+    { "고유ID":7, "가게이름":"일호청과", "가게분류":"청과물", "main_product":"귤,망고,멜론,방울토마토,수박,참외,토마토,포도", "위치":"가-48/경동시장로", "특징":"신선한 제철 과일과 함께 간식용 방울토마토나 수입 망고도 판매합니다.", "좌표":"910,440", "연결":"" },
+    { "고유ID":8, "가게이름":"청도상회", "가게분류":"농산물", "main_product":"고추,깻잎,마늘,부추,애호박,양파,오이,쪽파,호박잎", "위치":"가-49/경동시장로", "특징":"요리에 필요한 신선한 채소와 함께 찌개용 애호박이나 김치 재료로 쓰이는 쪽파를 판매합니다.", "좌표":"910,464", "연결":"" },
+    { "고유ID":9, "가게이름":"전국상회", "가게분류":"청과물", "main_product":"망고스틴,복숭아,블루베리,오렌지,자두,체리,파인애플", "위치":"가-50/경동시장로", "특징":"여름 과일과 함께 이국적인 맛의 수입 열대 과일을 다양하게 판매합니다.", "좌표":"892,518", "연결":"" },
+    { "고유ID":10, "가게이름":"말구상회", "가게분류":"농산물", "main_product":"감자,고구마,고추,대파,버섯,상추,오이,호박", "위치":"가-51/경동시장로", "특징":"찌개나 구이, 튀김에 쓰이는 감자와 고구마 등 필수 농산물을 취급합니다.", "좌표":"910,548", "연결":"" },
+    { "고유ID":11, "가게이름":"일품상회", "가게분류":"농산물", "main_product":"감자,고구마,고추,당근,마늘,배추,상추,생강,양파,오이", "위치":"가-52/경동시장로", "특징":"다양한 요리에 쓰이는 기본 채소와 함께 마늘, 생강 등 향신 채소도 판매합니다.", "좌표":"910,600", "연결":"" },
+    { "고유ID":16, "가게이름":"삼천리자전거", "가게분류":"서비스", "main_product":"성인용자전거,어린이자전거,자전거,자전거용품,헬멧", "위치":"왕산로", "특징":"자전거 판매뿐만 아니라 수리 및 정비 서비스도 제공합니다.", "좌표":"876,595", "연결":"" }
+];
 
-    // ⭐️ 주문 QR 생성 함수 수정 ⭐️
-    async function generateOrderQR() {
-        if (cart.length === 0) {
-            alert("장바구니에 상품을 먼저 담아주세요!");
-            return;
-        }
+// --- 2. 장바구니 상태 관리 ---
+let cart = [];
 
-        // URL 대신 ID 입력창에서 값을 직접 가져옵니다.
-        const userId = document.getElementById('userIdInput').value;
+// --- 3. 화면 렌더링 및 업데이트 함수들 ---
 
-        if (!userId) {
-            alert("사용자 ID를 입력해주세요!");
-            return;
-        }
+function renderProducts() {
+    const productListDiv = document.getElementById('product-list-items');
+    productListDiv.innerHTML = ''; 
+    storeData.forEach(store => {
+        if (!store.main_product) return; // main_product가 없는 데이터는 건너뜀
+        const products = store.main_product.split(',').filter(p => p.trim() !== '');
+        products.forEach(productName => {
+            const product = {
+                id: `${store.고유ID}_${productName.trim()}`,
+                storeName: store.가게이름,
+                name: productName.trim()
+            };
+            const itemHtml = `
+                <div class="product-item">
+                    <span>${product.name} <strong>(${product.storeName})</strong></span>
+                    <button onclick="addToCart('${product.id}', '${product.storeName}', '${product.name}')">담기</button>
+                </div>
+            `;
+            productListDiv.innerHTML += itemHtml;
+        });
+    });
+}
 
-        const orderData = {
-            userId: userId.trim(), // 공백 제거
-            items: cart,
-            orderTimestamp: new Date().toISOString()
-        };
-        
-        try {
-            await sendOrderToServer(orderData);
-            const qrDataString = JSON.stringify(orderData);
-            const qr = qrcode(0, 'M');
-            qr.addData(qrDataString);
-            qr.make();
-            document.getElementById('qrcode').innerHTML = qr.createImgTag(4, 8);
-            document.getElementById('qr-code-container').style.display = 'block';
-            alert("QR코드가 생성되었습니다!");
-        } catch(error) {
-            alert("QR코드 생성 중 문제가 발생했습니다.");
-        }
+function updateCartDisplay() {
+    const cartItemsUl = document.getElementById('cart-items');
+    cartItemsUl.innerHTML = '';
+    if (cart.length === 0) {
+        cartItemsUl.innerHTML = '<li>장바구니가 비어있습니다.</li>';
+    } else {
+        const itemCounts = {};
+        cart.forEach(item => {
+            if (itemCounts[item.id]) {
+                itemCounts[item.id].quantity++;
+            } else {
+                itemCounts[item.id] = { ...item, quantity: 1 };
+            }
+        });
+
+        Object.values(itemCounts).forEach(item => {
+             const itemHtml = `<li class="cart-item">${item.name} (${item.storeName}) - ${item.quantity}개</li>`;
+            cartItemsUl.innerHTML += itemHtml;
+        });
     }
-    window.onload = function() { renderProducts(); };
+}
+
+// --- 4. 핵심 로직 함수들 ---
+
+function addToCart(productId, storeName, productName) {
+    // 이제 quantity는 updateCartDisplay에서 계산하므로, cart에는 상품 추가 기록만 남깁니다.
+    cart.push({
+        id: productId,
+        storeName: storeName,
+        name: productName,
+    });
+    updateCartDisplay();
+}
+
+async function sendOrderToServer(orderData) {
+    console.log("--- 서버로 전송될 데이터 (시뮬레이션) ---", orderData);
+    // return Promise.resolve({ success: true, orderId: "LOCAL_ORDER_" + Date.now() });
+    try {
+        const response = await fetch('/api/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
+        const result = await response.json();
+        console.log("서버로부터 받은 응답:", result);
+        return result; 
+    } catch (error) {
+        console.error("서버 전송 실패:", error);
+        throw error;
+    }
+}
+
+async function generateOrderQR() {
+    if (cart.length === 0) {
+        alert("장바구니에 상품을 먼저 담아주세요!");
+        return;
+    }
+
+    const userId = document.getElementById('userIdInput').value;
+
+    if (!userId) {
+        alert("사용자 ID를 입력해주세요!");
+        return;
+    }
+    
+    // 장바구니 아이템 수량 계산
+    const itemCounts = {};
+    cart.forEach(item => {
+        if (itemCounts[item.id]) {
+            itemCounts[item.id].quantity++;
+        } else {
+            itemCounts[item.id] = { ...item, quantity: 1 };
+        }
+    });
+
+    const orderData = {
+        userId: userId.trim(),
+        items: Object.values(itemCounts), // 수량이 계산된 아이템 목록
+        orderTimestamp: new Date().toISOString()
+    };
+    
+    try {
+        await sendOrderToServer(orderData);
+        const qrDataString = JSON.stringify(orderData);
+        const qr = qrcode(0, 'M');
+        qr.addData(qrDataString);
+        qr.make();
+        document.getElementById('qrcode').innerHTML = qr.createImgTag(4, 8);
+        document.getElementById('qr-code-container').style.display = 'block';
+        alert("QR코드가 생성되었습니다!");
+
+    } catch(error) {
+        alert("QR코드 생성 중 문제가 발생했습니다.");
+    }
+}
+
+window.onload = function() {
+    renderProducts();
+};
 </script>
+
 </body>
 </html>
