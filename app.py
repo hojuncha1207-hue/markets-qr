@@ -95,3 +95,4 @@ if __name__ == '__main__':
     # host='0.0.0.0'은 Render 같은 클라우드 환경에서 필요합니다.
     app.run(host='0.0.0.0', port=5000, debug=True)
 
+
