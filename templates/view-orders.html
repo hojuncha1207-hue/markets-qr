@@ -2,47 +2,48 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>내 주문 QR코드</title>
+    <title>내 주문 QR코드 확인</title>
     <style>
+        /* CSS 스타일은 이전과 유사 */
         body { font-family: sans-serif; text-align: center; padding: 40px; }
-        #error-message { color: red; }
+        .container { max-width: 400px; margin: auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input[type="text"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 12px; font-size: 1em; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        #error-message { color: #d9534f; }
     </style>
 </head>
 <body>
-    <h1>내 주문 QR코드</h1>
-    <div id="order-container">
-        <p>주문 정보를 불러오는 중...</p>
+    <div class="container">
+        <h1>내 주문 정보 확인</h1>
+        
+        <input type="text" id="viewUserIdInput" placeholder="주문 시 입력한 ID를 입력하세요">
+        <button onclick="fetchOrder()">주문 조회하기</button>
+        
+        <div id="order-container" style="margin-top: 20px;"></div>
     </div>
 
     <script>
-        // 페이지가 로드되면 자동으로 실행됩니다.
-        document.addEventListener('DOMContentLoaded', async () => {
+        async function fetchOrder() {
             const container = document.getElementById('order-container');
-
-            // 1. URL에서 사용자 ID 가져오기
-            // 수정 후
-            const pathParts = window.location.pathname.split('/');
-            // URL 경로의 맨 마지막 부분을 userId로 인식합니다.
-            const userId = pathParts[pathParts.length - 1];
+            // 입력창에서 사용자 ID를 가져옵니다.
+            const userId = document.getElementById('viewUserIdInput').value;
 
             if (!userId) {
-                container.innerHTML = '<h2 id="error-message">사용자 ID를 찾을 수 없습니다.</h2>';
+                container.innerHTML = '<h2 id="error-message">조회할 사용자 ID를 입력해주세요.</h2>';
                 return;
             }
+            container.innerHTML = '<p>주문 정보를 불러오는 중...</p>';
 
-            // 2. 서버에 해당 사용자의 주문 정보 요청
             try {
-                const response = await fetch(`/api/get-order/${userId}`);
+                // 입력된 ID로 서버에 정보를 요청합니다.
+                const response = await fetch(`/api/get-order/${userId.trim()}`);
                 const data = await response.json();
 
-                // 3. 받은 데이터로 화면 구성
                 if (data.success) {
                     const order = data.order;
-                    // QR 데이터는 주문 정보 전체를 담고 있는 JSON 문자열입니다.
                     const qrDataString = JSON.stringify(order);
-                    // QR 코드 이미지를 생성해주는 외부 서비스를 이용합니다.
                     const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrDataString)}`;
-
+                    
                     container.innerHTML = `
                         <img src="${qrImageUrl}" alt="주문 QR코드">
                         <h3>주문자 ID: ${order.userId}</h3>
@@ -53,7 +54,7 @@
             } catch (error) {
                 container.innerHTML = '<h2 id="error-message">서버와 통신 중 오류가 발생했습니다.</h2>';
             }
-        });
+        }
     </script>
 </body>
 </html>
