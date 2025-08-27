@@ -24,7 +24,10 @@
         async function fetchOrderQR() {
             const container = document.getElementById('order-container');
             const userId = document.getElementById('viewUserIdInput').value.trim();
-            if (!userId) { alert('조회할 사용자 ID를 입력해주세요.'); return; }
+            if (!userId) { 
+                alert('조회할 사용자 ID를 입력해주세요.'); 
+                return; 
+            }
             container.innerHTML = '<p>서버에서 주문 정보를 찾는 중...</p>';
             try {
                 // 서버 주소가 같으므로 상대 경로로 API 호출
