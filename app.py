@@ -14,7 +14,7 @@ def init_db():
     # ... 이전 코드와 동일 ...
 
 # --- 라우트(URL 규칙) 단순화 ---
-@app.route('/')
+    @app.route('/')
 def home():
     return render_template('index.html')
 
@@ -34,3 +34,4 @@ def get_order(user_id):
 if __name__ == '__main__':
     init_db()
     app.run(host='0.0.0.0', port=5000, debug=True)
+
