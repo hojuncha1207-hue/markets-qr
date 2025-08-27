@@ -77,8 +77,11 @@ def get_order(user_id):
         cursor = conn.cursor()
         cursor.execute('SELECT order_data FROM orders WHERE user_id = %s', (user_id,))
         result = cursor.fetchone()
+
         if result:
-            return jsonify({'success': True, 'order': result[0]}), 200
+            # ⭐️ 핵심: DB에서 꺼낸 문자열을 파이썬 객체로 변환 (상자 열기)
+            order_data = json.loads(result[0]) 
+            return jsonify({'success': True, 'order': order_data}), 200
         else:
             return jsonify({'success': False, 'message': '주문 정보를 찾을 수 없습니다.'}), 404
     except Exception as e:
@@ -92,3 +95,4 @@ def get_order(user_id):
 if __name__ == '__main__':
     init_db()
     app.run(host='0.0.0.0', port=5000, debug=False)
+
