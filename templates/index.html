@@ -21,7 +21,7 @@
         .fab-kakao:hover { transform: scale(1.05); }
         .fab-kakao-text { font-weight: 900; color: #191919; font-size: 14px; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 100; }
-        .modal-content { background: white; padding: 2rem; border-radius: 1rem; max-width: 90%; width: 400px; animation: fadeIn .3s ease-in-out; }
+        .modal-content { background: white; padding: 1.5rem; border-radius: 1rem; max-width: 90%; width: 400px; animation: fadeIn .3s ease-in-out; }
     </style>
 </head>
 <body class="bg-gray-100 flex justify-center">
@@ -115,12 +115,12 @@
                     <h1 class="text-xl font-bold text-gray-800">스마트 장보기</h1>
                 </div>
                  <div class="relative">
-                    <input id="smartSearchInput" type="text" placeholder="원하는 상품을 검색하고 장을 보세요!"
+                    <input id="smartSearchInput" type="text" placeholder="예: 고등어, 삼겹살, 김치"
                            class="w-full pl-10 pr-4 py-3 bg-gray-100 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl"></i>
                 </div>
             </header>
-            <main id="smartSearchResultsContainer" class="p-4 space-y-4"></main>
+            <main id="smartSearchResultsContainer" class="p-4"></main>
         </div>
 
         <div id="pickupScreen" class="screen">
@@ -193,39 +193,35 @@
     const marketData = [
         {"고유ID":0,"가게이름":"수희과일","가게분류":"청과물","main_product":"곶감,딸기,레몬,망고,멜론,바나나,배,복숭아,사과,샤인머스켓,수박,씨없는수박,오랜지,오렌지,자두,참외,체리,키위,토마토,포도"},
         {"고유ID":1,"가게이름":"안동상회","가게분류":"청과물","main_product":"귤,딸기,멜론,방울토마토,사과,수박,홍시"},
-        {"고유ID":2,"가게이름":"소문난반찬","가게분류":"가공식품","main_product":"갈치속젓,게장,명란젓,새우장,전복장"},
-        {"고유ID":3,"가게이름":"한양상회","가게분류":"농산물","main_product":"깻잎),대파,버섯(느타리,새송이),시금치,쌈채소(상추,양파"},
+        {"고유ID":2,"가게이름":"소문난반찬","가게분류":"가공식품","main_product":"갈치속젓,게장,명란젓,새우장,전복장,김치"},
+        {"고유ID":3,"가게이름":"한양상회","가게분류":"농산물","main_product":"깻잎),대파,버섯(느타리,새송이),시금치,쌈채소(상추,양파,쌀"},
         {"고유ID":4,"가게이름":"대동상회","가게분류":"청과물","main_product":"거봉,멜론,복숭아,블루베리,사과,자두,캠벨포도"},
         {"고유ID":5,"가게이름":"태영상회","가게분류":"청과물","main_product":"복숭아,수박,자두,참외,천도복숭아,포도"},
         {"고유ID":7,"가게이름":"일호청과","가게분류":"청과물","main_product":"귤,망고,멜론,방울토마토,수박,참외,토마토,포도"},
         {"고유ID":8,"가게이름":"청도상회","가게분류":"농산물","main_product":"고추,깻잎,마늘,부추,애호박,양파,오이,쪽파,호박잎"},
         {"고유ID":9,"가게이름":"전국상회","가게분류":"청과물","main_product":"망고스틴,복숭아,블루베리,오렌지,자두,체리,파인애플"},
-        {"고유ID":10,"가게이름":"말구상회","가게분류":"농산물","main_product":"감자,고구마,고추,대파,버섯,상추,오이,호박"},
-        {"고유ID":11,"가게이름":"일품상회","가게분류":"농산물","main_product":"감자,고구마,고추,당근,마늘,배추,상추,생강,양파,오이"},
-        {"고유ID":12,"가게이름":"지리산","가게분류":"한약재","main_product":""},
-        {"고유ID":13,"가게이름":"중앙야채","가게분류":"농산물","main_product":""},
-        {"고유ID":14,"가게이름":"삼화상회","가게분류":"농산물","main_product":""},
-        {"고유ID":15,"가게이름":"신현대상회","가게분류":"농산물","main_product":""},
-        {"고유ID":16,"가게이름":"삼천리자전거","가게분류":"서비스","main_product":"성인용자전거,어린이자전거,자전거,자전거용품,헬멧"},
-        {"고유ID":17,"가게이름":"우리동네DC아울렛 청량리점","가게분류":"생활용품(잡화)","main_product":"각종수저,고무장갑,냄비,병,수세미,젓가락,주걱,청소도구,프라이팬"},
-        {"고유ID":18,"가게이름":"한국토종물산","가게분류":"한약재","main_product":"귀리,녹용,당귀,산수유,작두콩,칡즙,헛개나무"},
-        {"고유ID":19,"가게이름":"빅토리가방","가게분류":"생활용품(잡화)","main_product":"병,여행용가방,주걱,지갑,청소도구,캐리어,학생용백팩,핸드백"},
-        {"고유ID":20,"가게이름":"포천농장","가게분류":"정육점","main_product":"가브리살,닭갈비,돼지갈비,돼지불고기,떡갈비,목살,삼겹살,소고기국거리,소고기등심,소불고기,오리고기,항정살"},
-        {"고유ID":21,"가게이름":"한초한의원","가게분류":"서비스","main_product":"뜸,부항,왕산로,체질개선,침술,한약처방"},
-        {"고유ID":130,"가게이름":"경동함흥냉면","가게분류":"음식점(한식)","main_product":"갈비탕,만두,물냉면,비빔냉면,수육,회냉면"},
+        {"고유ID":10,"가게이름":"말구상회","가게분류":"농산물","main_product":"감자,고구마,고추,대파,버섯,상추,오이,호박,쌀"},
+        {"고유ID":16,"가게이름":"바다먹거리장터","가게분류":"수산물","main_product":"광어,꽃게,낙지,대게,랍스터,문어,연어,우럭,전복,조개,킹크랩,회,고등어"},
+        {"고유ID":24,"가게이름":"신토불이 축산물직판장","가게분류":"정육점","main_product":"가브리살,갈비살,닭고기,돼지특수부위,항정살,목살,삼겹살,소갈비,소고기국거리,소고기등심,오리고기,한우특수부위,살치살"},
+        {"고유ID":130,"가게이름":"경동함흥냉면","가게분류":"음식점(한식)","main_product":"갈비탕,만두,물냉면,비빔냉면,수육,회냉면,김치"},
+        {"고유ID":132,"가게이름":"대박정육점","가게분류":"정육점","main_product":"돼지갈매기살,돼지갈비,목살,삼겹살,소갈비,소고기국거리,소고기등심,소꼬리,안심,한우특수부위,채끝"},
+        {"고유ID":133,"가게이름":"우리축산","가게분류":"정육점","main_product":"양념갈비,대패삼겹살,삼겹살"},
+        {"고유ID":34,"가게이름":"거북이젓갈","가게분류":"반찬/김치","main_product":"갈치속젓,꼴뚜기젓,낙지젓,명란젓,새우젓,어리굴젓,오징어젓,창난젓,김치"},
+        {"고유ID":62,"가게이름":"금산인삼","가게분류":"가공식품","main_product":"더덕,도라지,산양삼,수삼,인삼,인삼주,홍삼액"},
         {"고유ID":137,"가게이름":"그시절그맛","가게분류":"음식점(제과제빵)","main_product":"고로케,꽈배기,도너츠,맘모스빵,소시지빵,찐빵,찹쌀도넛"},
-        {"고유ID":81,"가게이름":"성현물산","가게분류":"농산물","main_product":"녹용,당귀,더덕,도라지,쑥,오미자,인삼,칡,홍삼"}
+        {"고유ID":81,"가게이름":"성현물산","가게분류":"농산물","main_product":"녹용,당귀,더덕,도라지,쑥,오미자,인삼,칡,홍삼,쌀"}
     ];
     
     const storeData = marketData.map(store => {
         const productNames = store.main_product ? store.main_product.split(',') : [];
-        const mainTags = productNames.slice(0, 2).map(tag => `#${tag.trim()}`);
+        const mainTags = productNames.slice(0, 2).map(tag => `#${tag.trim()}`).filter(tag => tag !== '#');
         const products = productNames.map((productName, index) => {
             if (!productName.trim()) return null;
+            const cleanName = productName.trim().replace(/[()]/g, '');
             return {
-                id: `${store.고유ID}-${index}`, name: productName.trim(),
+                id: `${store.고유ID}-${index}`, name: cleanName,
                 price: Math.floor(Math.random() * (300 - 50) + 50) * 100,
-                img: `https://placehold.co/100x100/E0E7FF/4338CA?text=${encodeURIComponent(productName.trim().charAt(0))}`
+                img: `https://placehold.co/100x100/E0E7FF/4338CA?text=${encodeURIComponent(cleanName.charAt(0))}`
             };
         }).filter(p => p !== null);
         return {
@@ -294,34 +290,85 @@
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         let cartItemsHtml = '', totalPrice = 0;
-        if (Object.keys(shoppingCart).length > 0) {
-            for (const storeName in shoppingCart) {
-                const items = shoppingCart[storeName];
-                const itemDetails = items.map(item => {
-                    totalPrice += item.price;
-                    return `<p class="text-gray-600 text-sm">${item.name} - ${item.price.toLocaleString()}원</p>`;
-                }).join('');
-                cartItemsHtml += `<div class="bg-gray-50 p-3 rounded-lg mb-2"><p class="font-semibold text-gray-800 mb-1">${storeName}</p>${itemDetails}</div>`;
-            }
+        const cartIsEmpty = Object.keys(shoppingCart).length === 0;
+
+        if (cartIsEmpty) {
+            cartItemsHtml = `<p class="text-center text-gray-500 py-10">장바구니가 비어 있습니다.</p>`;
         } else {
-             cartItemsHtml = `<p class="text-center text-gray-500 py-4">장바구니가 비어 있습니다.</p>`;
+            for (const storeId in shoppingCart) {
+                const store = shoppingCart[storeId];
+                let storeItemsHtml = '';
+                for (const productId in store.items) {
+                    const item = store.items[productId];
+                    totalPrice += item.price * item.quantity;
+                    storeItemsHtml += `
+                        <div class="flex items-center py-3 border-b last:border-b-0">
+                            <img src="${item.img}" alt="${item.name}" class="w-16 h-16 rounded-md mr-4">
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-800">${item.name}</p>
+                                <p class="text-gray-600 font-bold">${item.price.toLocaleString()}원</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="cart-quantity-btn w-6 h-6 bg-gray-200 rounded-full" data-store-id="${storeId}" data-product-id="${productId}" data-change="-1">-</button>
+                                <span class="w-8 text-center font-semibold">${item.quantity}</span>
+                                <button class="cart-quantity-btn w-6 h-6 bg-gray-200 rounded-full" data-store-id="${storeId}" data-product-id="${productId}" data-change="1">+</button>
+                            </div>
+                            <button class="ml-4 text-gray-400 hover:text-red-500 cart-delete-btn" data-store-id="${storeId}" data-product-id="${productId}">
+                                <i class="ph ph-x-circle text-2xl"></i>
+                            </button>
+                        </div>`;
+                }
+                cartItemsHtml += `
+                    <div class="mb-4">
+                        <button class="flex items-center font-bold text-lg mb-2 store-link-from-cart" data-store-id="${storeId}">
+                            ${store.storeName} <i class="ph ph-caret-right ml-1"></i>
+                        </button>
+                        <div class="bg-gray-50 p-2 rounded-lg">${storeItemsHtml}</div>
+                    </div>`;
+            }
         }
+
         modal.innerHTML = `
-            <div class="modal-content">
-                <h3 class="text-xl font-bold mb-4">장바구니</h3>
-                <div class="mb-4">
-                    <label for="userIdInput" class="block text-sm font-medium text-gray-700 mb-2">주문자 ID</label>
-                    <input type="text" id="userIdInput" placeholder="나중에 QR을 찾을 때 사용할 ID" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+            <div class="modal-content flex flex-col h-full max-h-[80vh]">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">장바구니</h3>
+                    <button onclick="this.closest('.modal-overlay').remove()"><i class="ph ph-x text-2xl"></i></button>
                 </div>
-                <div class="space-y-3 max-h-60 overflow-y-auto mb-4">${cartItemsHtml}</div>
-                <div class="text-right font-bold text-xl my-4 border-t pt-4">총 결제금액: <span class="text-indigo-600">${totalPrice.toLocaleString()}원</span></div>
-                <div class="flex flex-col space-y-2">
-                    <button id="checkoutBtn" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700" ${totalPrice === 0 ? 'disabled' : ''}>결제하고 QR 생성하기</button>
-                    <button onclick="this.closest('.modal-overlay').remove()" class="w-full px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">닫기</button>
+                <div class="flex-1 overflow-y-auto pr-2">${cartItemsHtml}</div>
+                <div class="border-t pt-4 mt-4">
+                    <div class="mb-4">
+                        <label for="userIdInput" class="block text-sm font-medium text-gray-700 mb-2">주문자 ID</label>
+                        <input type="text" id="userIdInput" placeholder="나중에 QR을 찾을 때 사용할 ID" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="text-right font-bold text-xl mb-4">
+                        총 결제금액: <span class="text-indigo-600">${totalPrice.toLocaleString()}원</span>
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <button id="checkoutBtn" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors ${cartIsEmpty ? 'opacity-50 cursor-not-allowed' : ''}" ${cartIsEmpty ? 'disabled' : ''}>
+                            결제하고 QR 생성하기
+                        </button>
+                    </div>
                 </div>
             </div>`;
         document.getElementById('modalContainer').appendChild(modal);
-        if (totalPrice > 0) {
+        
+        modal.addEventListener('click', e => {
+            const quantityBtn = e.target.closest('.cart-quantity-btn');
+            const deleteBtn = e.target.closest('.cart-delete-btn');
+            const storeLink = e.target.closest('.store-link-from-cart');
+            if (quantityBtn) {
+                const { storeId, productId, change } = quantityBtn.dataset;
+                updateCartItemQuantity(storeId, productId, parseInt(change));
+            } else if (deleteBtn) {
+                const { storeId, productId } = deleteBtn.dataset;
+                updateCartItemQuantity(storeId, productId, -Infinity);
+            } else if (storeLink) {
+                modal.remove();
+                showScreen('storeDetailScreen', { storeId: parseInt(storeLink.dataset.storeId), fromCategory: 'homeScreen' });
+            }
+        });
+
+        if (!cartIsEmpty) {
             document.getElementById('checkoutBtn').addEventListener('click', handleCheckout);
         }
     }
@@ -347,7 +394,7 @@
             case 'categoryListScreen': if (param) renderCategoryList(param); break;
             case 'storeDetailScreen': if (param) renderStoreDetail(param); break;
             case 'smartShoppingScreen':
-                document.getElementById('smartSearchResultsContainer').innerHTML = '<p class="text-center text-gray-500 py-10">찾고 싶은 상품을 검색해 보세요.</p>';
+                document.getElementById('smartSearchResultsContainer').innerHTML = '<p class="text-center text-gray-500 py-10">찾고 싶은 상품을 쉼표(,)로 구분하여 검색해 보세요.<br>예: 고등어, 삼겹살, 김치</p>';
                 document.getElementById('smartSearchInput').value = '';
                 break;
         }
@@ -431,7 +478,15 @@
                             <p class="text-indigo-600 font-bold mt-1">${product.price.toLocaleString()}원</p>
                         </div>
                     </div>
-                    <button data-product-name="${product.name}" data-store-name="${store.name}" data-product-price="${product.price}" class="add-to-cart-btn px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700">담기</button>`;
+                    <button class="add-to-cart-btn px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+                        data-store-id="${store.id}"
+                        data-store-name="${store.name}"
+                        data-product-id="${product.id}"
+                        data-product-name="${product.name}"
+                        data-product-price="${product.price}"
+                        data-product-img="${product.img}">
+                        담기
+                    </button>`;
                 productListContainer.appendChild(productEl);
             });
         } else {
@@ -443,12 +498,16 @@
     function renderPickupScreen() {
         const pickupScreenMain = document.getElementById('pickupScreenMain');
         pickupScreenMain.innerHTML = `
-            <div class="mb-4">
-                <label for="viewUserIdInput" class="block text-sm font-medium text-gray-700 mb-2">주문자 ID</label>
-                <input type="text" id="viewUserIdInput" placeholder="주문 시 입력한 ID를 입력하세요" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <button onclick="fetchOrderQR()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">내 QR코드 조회하기</button>
-            <div id="fetchedQrContainer" class="mt-6"></div>`;
+            <p class="text-center text-gray-600 mb-6">장바구니에서 주문을 완료하면 픽업 QR코드가 여기에 표시됩니다.</p>
+            <div class="border-t pt-6">
+                 <h3 class="text-lg font-bold text-gray-800 mb-4">이미 주문하셨나요?</h3>
+                <div class="mb-4">
+                    <label for="viewUserIdInput" class="block text-sm font-medium text-gray-700 mb-2">주문자 ID</label>
+                    <input type="text" id="viewUserIdInput" placeholder="주문 시 입력한 ID를 입력하세요" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button onclick="fetchOrderQR()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">내 QR코드 조회하기</button>
+                <div id="fetchedQrContainer" class="mt-6"></div>
+            </div>`;
     }
 
     function renderMyOrdersScreen() {
@@ -460,10 +519,10 @@
         }
         [...completedOrders].reverse().forEach(order => {
              let orderItemsHtml = '';
-             for (const storeName in order.cart) {
-                 const items = order.cart[storeName];
-                 const itemNames = items.map(item => `${item.name} 1개`).join('<br>');
-                 orderItemsHtml += `<div class="mt-2"><h4 class="font-semibold text-lg text-gray-800">${storeName}</h4><p class="text-gray-600 pl-1">${itemNames}</p></div>`;
+             for (const storeId in order.cart) {
+                 const store = order.cart[storeId];
+                 const itemNames = Object.values(store.items).map(item => `${item.name} ${item.quantity}개`).join('<br>');
+                 orderItemsHtml += `<div class="mt-2"><h4 class="font-semibold text-lg text-gray-800">${store.storeName}</h4><p class="text-gray-600 pl-1">${itemNames}</p></div>`;
              }
              const orderCard = document.createElement('div');
              orderCard.className = 'bg-white p-4 rounded-lg border border-gray-200 shadow-sm';
@@ -486,7 +545,24 @@
             container.innerHTML = `<p class="text-center text-gray-500 p-10">찜한 가게가 없습니다.</p>`;
             return;
         }
-        favoriteStoreDetails.forEach(store => { /* ... */ });
+        favoriteStoreDetails.forEach(store => {
+             const tagsHtml = store.mainTags.map(tag => `<span class="bg-gray-200 text-gray-700 text-xs font-medium mr-2 px-2 py-1 rounded">${tag}</span>`).join('');
+             const card = document.createElement('div');
+             card.className = 'flex items-start bg-white p-4 rounded-lg border border-gray-200 relative';
+             card.innerHTML = `
+                 <img src="https://placehold.co/100x100/E0E7FF/4338CA?text=${encodeURIComponent(store.name.charAt(0))}" alt="${store.name}" class="w-24 h-24 rounded-md mr-4 cursor-pointer store-link" data-store-id="${store.id}" data-from-category="favoritesScreen">
+                 <div class="flex-1 cursor-pointer store-link" data-store-id="${store.id}" data-from-category="favoritesScreen">
+                     <h3 class="font-bold text-lg text-gray-900">${store.name}</h3>
+                     <div class="flex items-center text-sm text-gray-600 mt-1">
+                         <i class="ph ph-star text-yellow-400 text-base mr-1"></i> <span class="font-bold">${store.rating}</span>
+                     </div>
+                     <div class="mt-2">${tagsHtml}</div>
+                 </div>
+                 <button class="absolute top-4 right-4 text-gray-400 favorite-btn favorited" data-store-id="${store.id}">
+                     <i class="ph ph-heart-fill text-3xl"></i>
+                 </button>`;
+             container.appendChild(card);
+        });
     }
 
     // ==================== 핵심 로직 ====================
@@ -539,10 +615,36 @@
         }
     }
     
-    function addToCart(storeName, productName, price) {
-       if (!shoppingCart[storeName]) shoppingCart[storeName] = [];
-       shoppingCart[storeName].push({ name: productName, price: price });
-       showMessage(`'${productName}' 상품을 장바구니에 담았습니다!`);
+    function addToCart(storeId, storeName, productId, productName, price, img) {
+        if (!shoppingCart[storeId]) {
+            shoppingCart[storeId] = { storeName: storeName, items: {} };
+        }
+        if (shoppingCart[storeId].items[productId]) {
+            shoppingCart[storeId].items[productId].quantity++;
+        } else {
+            shoppingCart[storeId].items[productId] = { name: productName, price: price, quantity: 1, img: img };
+        }
+    }
+    
+    function updateCartItemQuantity(storeId, productId, change) {
+        if (shoppingCart[storeId] && shoppingCart[storeId].items[productId]) {
+            const item = shoppingCart[storeId].items[productId];
+            item.quantity += change;
+            if (item.quantity <= 0) {
+                delete shoppingCart[storeId].items[productId];
+                if (Object.keys(shoppingCart[storeId].items).length === 0) {
+                    delete shoppingCart[storeId];
+                }
+            }
+        }
+        const existingModal = document.querySelector('.modal-overlay');
+        if (existingModal) {
+            const currentUserId = existingModal.querySelector('#userIdInput')?.value || '';
+            existingModal.remove();
+            showCartModal();
+            const newUserIdInput = document.querySelector('#userIdInput');
+            if(newUserIdInput) newUserIdInput.value = currentUserId;
+        }
     }
     
     // ==================== 지도 관련 함수 ====================
@@ -569,8 +671,7 @@
             btn.classList.toggle('favorited', isFavorited);
             const icon = btn.querySelector('i');
             if (icon) {
-                icon.classList.toggle('ph-heart-fill', isFavorited);
-                icon.classList.toggle('ph-heart', !isFavorited);
+                icon.className = `ph ${isFavorited ? 'ph-heart-fill' : 'ph-heart'} text-3xl`;
             }
         });
         if (document.getElementById('favoritesScreen').classList.contains('active')) { renderFavoritesScreen(); }
@@ -583,12 +684,20 @@
             const addToCartBtn = e.target.closest('.add-to-cart-btn');
             const favoriteBtn = e.target.closest('.favorite-btn');
             const storeLink = e.target.closest('.store-link');
+            const accordionToggle = e.target.closest('.smart-accordion-toggle');
             if (addToCartBtn) {
-                addToCart(addToCartBtn.dataset.storeName, addToCartBtn.dataset.productName, parseInt(addToCartBtn.dataset.productPrice));
+                const { storeId, storeName, productId, productName, productPrice, productImg } = addToCartBtn.dataset;
+                addToCart(storeId, storeName, productId, productName, parseInt(productPrice), productImg);
+                showMessage(`'${productName}' 상품을 장바구니에 담았습니다!`);
             } else if (favoriteBtn) {
                 toggleFavorite(favoriteBtn.dataset.storeId);
             } else if (storeLink) {
                 showScreen('storeDetailScreen', { storeId: parseInt(storeLink.dataset.storeId), fromCategory: storeLink.dataset.fromCategory });
+            } else if (accordionToggle) {
+                const content = accordionToggle.nextElementSibling;
+                const icon = accordionToggle.querySelector('i');
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
             }
         });
         document.querySelectorAll('.nav-btn').forEach(button => {
@@ -608,6 +717,9 @@
                     showMessage('해당하는 가게를 찾을 수 없습니다.');
                 }
             }
+        });
+        document.getElementById('smartSearchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSmartSearch();
         });
     }
 
