@@ -26,11 +26,708 @@
 </head>
 <body class="bg-gray-100 flex justify-center">
     <div id="appContainer" class="max-w-lg w-full bg-white vh-safe shadow-2xl relative">
+
+        <div id="homeScreen" class="screen">
+            <header class="p-4 sticky top-0 bg-white z-10 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h1 class="text-xl font-bold text-indigo-600">청냠리 🍓</h1>
+                    <div class="flex items-center space-x-4 text-gray-600">
+                        <button onclick="showMessage('알림 기능은 준비 중입니다.')"><i class="ph ph-bell text-2xl"></i></button>
+                        <button onclick="showCartModal()"><i class="ph ph-shopping-cart text-2xl"></i></button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <input id="homeSearchInput" type="text" placeholder="가게 이름이나 상품을 검색해보세요!"
+                           class="w-full pl-10 pr-4 py-3 bg-gray-100 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl"></i>
+                </div>
+            </header>
+            <nav class="p-4 grid grid-cols-4 gap-4 text-center">
+                <button onclick="showScreen('mapScreen')" class="nav-button flex flex-col items-center justify-center space-y-2 p-2 rounded-lg hover:bg-indigo-50 transition-colors">
+                    <div class="nav-icon w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center"><i class="ph ph-map-trifold text-3xl text-indigo-600"></i></div>
+                    <span class="font-semibold text-gray-700 text-sm">시장 지도</span>
+                </button>
+                <button onclick="showScreen('categoryListScreen', 'all')" class="nav-button flex flex-col items-center justify-center space-y-2 p-2 rounded-lg hover:bg-orange-50 transition-colors">
+                    <div class="nav-icon w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center"><i class="ph ph-storefront text-3xl text-orange-600"></i></div>
+                    <span class="font-semibold text-gray-700 text-sm">가게/상품</span>
+                </button>
+                <button onclick="showScreen('pickupScreen')" class="nav-button flex flex-col items-center justify-center space-y-2 p-2 rounded-lg hover:bg-teal-50 transition-colors">
+                    <div class="nav-icon w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center"><i class="ph ph-qr-code text-3xl text-teal-600"></i></div>
+                    <span class="font-semibold text-gray-700 text-sm">픽업 주문</span>
+                </button>
+                <button onclick="showScreen('smartShoppingScreen')" class="nav-button flex flex-col items-center justify-center space-y-2 p-2 rounded-lg hover:bg-sky-50 transition-colors">
+                    <div class="nav-icon w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center"><i class="ph ph-chats-circle text-3xl text-sky-600"></i></div>
+                    <span class="font-semibold text-gray-700 text-sm">스마트 장보기</span>
+                </button>
+            </nav>
+            <hr class="my-2 border-gray-100 border-4">
+            <section class="p-4">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">어떤 종류를 찾으세요?</h2>
+                <div class="grid grid-cols-5 gap-4 text-center">
+                    <button onclick="showScreen('categoryListScreen', '정육점')" class="flex flex-col items-center space-y-2"><div class="w-full h-16 flex items-center justify-center bg-red-100 rounded-lg shadow-sm text-4xl">🥩</div><span class="text-xs font-medium">정육</span></button>
+                    <button onclick="showScreen('categoryListScreen', '수산물')" class="flex flex-col items-center space-y-2"><div class="w-full h-16 flex items-center justify-center bg-blue-100 rounded-lg shadow-sm text-4xl">🐟</div><span class="text-xs font-medium">수산</span></button>
+                    <button onclick="showScreen('categoryListScreen', '청과물')" class="flex flex-col items-center space-y-2"><div class="w-full h-16 flex items-center justify-center bg-green-100 rounded-lg shadow-sm text-4xl">🥬</div><span class="text-xs font-medium">청과/야채</span></button>
+                    <button onclick="showScreen('categoryListScreen', '가공식품')" class="flex flex-col items-center space-y-2"><div class="w-full h-16 flex items-center justify-center bg-yellow-100 rounded-lg shadow-sm text-4xl">🍚</div><span class="text-xs font-medium">반찬</span></button>
+                    <button onclick="showScreen('categoryListScreen', '음식점(한식)')" class="flex flex-col items-center space-y-2"><div class="w-full h-16 flex items-center justify-center bg-purple-100 rounded-lg shadow-sm text-4xl">🍲</div><span class="text-xs font-medium">음식점</span></button>
+                </div>
+            </section>
         </div>
 
-    <script>
-    // 모든 JavaScript 로직이 여기에 포함됩니다.
-    // 데이터, UI 렌더링, 서버 통신 등 모든 기능이 포함된 완전한 코드입니다.
-    </script>
+        <div id="categoryListScreen" class="screen">
+            <header class="p-4 sticky top-0 bg-white z-10 border-b">
+                <div class="flex items-center">
+                    <button onclick="showScreen('homeScreen')" class="p-2 mr-2"><i class="ph ph-arrow-left text-2xl"></i></button>
+                    <h1 id="categoryTitle" class="text-xl font-bold text-gray-800"></h1>
+                </div>
+            </header>
+            <div class="p-4 flex items-center space-x-2 border-b overflow-x-auto">
+                <i class="ph ph-faders-horizontal text-xl text-gray-600"></i>
+                <button class="category-sort-btn px-4 py-2 text-sm font-semibold border rounded-full filter-active whitespace-nowrap" data-sort="default">기본 순</button>
+                <button class="category-sort-btn px-4 py-2 text-sm font-semibold border rounded-full whitespace-nowrap" data-sort="orders">주문 많은 순</button>
+                <button class="category-sort-btn px-4 py-2 text-sm font-semibold border rounded-full whitespace-nowrap" data-sort="rating">별점 높은 순</button>
+            </div>
+            <main id="categoryStoreListContainer" class="p-4 space-y-4"></main>
+        </div>
+
+        <div id="storeDetailScreen" class="screen">
+            <header class="p-4 sticky top-0 bg-white z-10 border-b">
+                <div class="flex items-center">
+                    <button id="backToCategoryBtn" class="p-2 mr-2"><i class="ph ph-arrow-left text-2xl"></i></button>
+                    <h1 id="storeDetailTitle" class="text-xl font-bold text-gray-800 flex-1"></h1>
+                    <button id="detailFavoriteBtn" class="p-2 text-gray-400 favorite-btn"><i class="ph ph-heart text-3xl"></i></button>
+                </div>
+            </header>
+            <main class="p-4">
+                <div id="storeDetailInfo" class="mb-6"></div>
+                <hr>
+                <h2 class="text-lg font-bold text-gray-800 my-4">상품 목록</h2>
+                <div id="storeProductListContainer" class="space-y-4"></div>
+                <hr>
+                <h2 class="text-lg font-bold text-gray-800 my-4">방문자 리뷰</h2>
+                <div id="storeReviewsContainer" class="space-y-4"></div>
+            </main>
+        </div>
+
+        <div id="smartShoppingScreen" class="screen">
+            <header class="p-4 sticky top-0 bg-white z-10 border-b">
+                <div class="flex items-center mb-4">
+                    <button onclick="showScreen('homeScreen')" class="p-2 mr-2"><i class="ph ph-arrow-left text-2xl"></i></button>
+                    <h1 class="text-xl font-bold text-gray-800">스마트 장보기</h1>
+                </div>
+                 <div class="relative">
+                    <input id="smartSearchInput" type="text" placeholder="예: 고등어, 삼겹살, 김치"
+                           class="w-full pl-10 pr-4 py-3 bg-gray-100 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl"></i>
+                </div>
+            </header>
+            <main class="p-4">
+                <div id="myRecipesContainer" class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-lg font-bold text-gray-800">나만의 레시피</h2>
+                        <button onclick="showRecipeModal()" class="text-sm bg-indigo-100 text-indigo-700 font-semibold px-3 py-1 rounded-lg">+ 새 레시피 추가</button>
+                    </div>
+                    <div id="myRecipesList" class="space-y-2"></div>
+                </div>
+                <hr class="my-4">
+                <div id="smartSearchResultsContainer"></div>
+            </main>
+        </div>
+
+        <div id="recipeModalScreen" class="screen bg-gray-50">
+             <header class="p-4 sticky top-0 bg-white z-10 border-b">
+                <div class="flex items-center">
+                    <button onclick="showScreen('smartShoppingScreen')" class="p-2 mr-2"><i class="ph ph-arrow-left text-2xl"></i></button>
+                    <h1 id="recipeModalTitle" class="text-xl font-bold text-gray-800">새 레시피 추가</h1>
+                </div>
+            </header>
+            <main class="p-4">
+                <input type="hidden" id="recipeIdInput">
+                <div class="mb-4">
+                    <label for="recipeNameInput" class="block text-sm font-medium text-gray-700 mb-1">레시피 이름</label>
+                    <input type="text" id="recipeNameInput" placeholder="예: 우리집 김치찌개" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <h3 class="font-semibold mb-2">재료 목록</h3>
+                <div id="recipeIngredientsContainer" class="space-y-2"></div>
+                <button id="addIngredientBtn" class="w-full mt-2 text-sm text-indigo-600 font-semibold p-2 bg-indigo-50 rounded-lg hover:bg-indigo-100">+ 재료 추가하기</button>
+                <div class="mt-8 flex space-x-2">
+                    <button id="deleteRecipeBtn" class="w-full px-4 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 hidden">삭제</button>
+                    <button id="saveRecipeBtn" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700">저장하기</button>
+                </div>
+            </main>
+        </div>
+
+        <div id="pickupScreen" class="screen">
+            <header class="p-4 sticky top-0 bg-white z-10 border-b">
+                <div class="flex items-center">
+                    <button onclick="showScreen('homeScreen')" class="p-2 mr-2"><i class="ph ph-arrow-left text-2xl"></i></button>
+                    <h1 class="text-xl font-bold text-gray-800">픽업 주문</h1>
+                </div>
+            </header>
+            <main id="pickupScreenMain" class="p-6"></main>
+        </div>
+        
+        <div id="myOrdersScreen" class="screen">
+            <header class="p-4 sticky top-0 bg-white z-10 border-b">
+                <h1 class="text-xl font-bold text-gray-800 text-center">주문 내역</h1>
+            </header>
+            <main class="p-4 space-y-4"></main>
+        </div>
+
+        <div id="recentItemsScreen" class="screen">
+            <header class="p-4 sticky top-0 bg-white z-10 border-b"><h1 class="text-xl font-bold text-gray-800 text-center">최근 본 상품</h1></header>
+            <p class="p-10 text-center text-gray-500">최근 본 상품 기능은 준비 중입니다.</p>
+        </div>
+        <div id="favoritesScreen" class="screen">
+            <header class="p-4 sticky top-0 bg-white z-10 border-b"><h1 class="text-xl font-bold text-gray-800 text-center">찜한 가게</h1></header>
+            <main class="p-4 space-y-4"></main>
+        </div>
+
+        <div id="mapScreen" class="screen">
+            <header class="p-4 sticky top-0 bg-white z-10 border-b">
+                <div class="flex items-center">
+                    <button onclick="showScreen('homeScreen')" class="p-2 mr-2"><i class="ph ph-arrow-left text-2xl"></i></button>
+                    <h1 class="text-xl font-bold text-gray-800">시장 지도</h1>
+                    <div class="ml-auto flex items-center gap-2">
+                        <button onclick="showPromptBox('URL 설정', '시장 지도 URL을 입력하세요', setMarketMapUrl)" class="px-3 py-1.5 rounded-md border text-sm text-gray-700 hover:bg-gray-50">URL 설정</button>
+                        <a id="openMapNewTab" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-md bg-indigo-600 text-white text-sm hover:bg-indigo-700">새 탭</a>
+                    </div>
+                </div>
+            </header>
+            <div id="mapLoading" class="p-6 flex items-center justify-center text-gray-500">
+                <i class="ph ph-circle-notch animate-spin text-2xl mr-2"></i> 로딩 중…
+            </div>
+            <iframe id="marketMapFrame" title="시장 지도" class="w-full" style="border:0; height: calc(100svh - 65px - 80px); display:none;" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+        </div>
+        
+        <div id="modalContainer"></div>
+
+        <a href="https://pf.kakao.com/_xgGdxmn" target="_blank" class="fab-kakao">
+             <span class="fab-kakao-text">TALK</span>
+        </a>
+
+        <footer class="bottom-nav fixed bottom-0 left-1/2 -translate-x-1/2 max-w-lg w-full grid grid-cols-4 text-center bg-white border-t border-gray-200 z-20">
+            <button data-screen="recentItemsScreen" class="nav-btn p-4 flex flex-col items-center justify-center text-gray-500"><i class="ph ph-clock-counter-clockwise text-2xl"></i><span class="text-xs mt-1">최근 본 상품</span></button>
+            <button data-screen="homeScreen" class="nav-btn p-4 flex flex-col items-center justify-center text-gray-500 active"><i class="ph ph-house text-2xl"></i><span class="text-xs mt-1">홈</span></button>
+            <button data-screen="favoritesScreen" class="nav-btn p-4 flex flex-col items-center justify-center text-gray-500"><i class="ph ph-heart text-2xl"></i><span class="text-xs mt-1">찜</span></button>
+            <button data-screen="myOrdersScreen" class="nav-btn p-4 flex flex-col items-center justify-center text-gray-500"><i class="ph ph-receipt text-2xl"></i><span class="text-xs mt-1">내 주문</span></button>
+        </footer>
+    </div>
+
+<script>
+(() => {
+    // ==================== 데이터 및 기본 상태 ====================
+    const marketData = [
+        {"고유ID":0,"가게이름":"수희과일","가게분류":"청과물","main_product":"곶감,딸기,레몬,망고,멜론,바나나,배,복숭아,사과,샤인머스켓,수박,씨없는수박,오랜지,오렌지,자두,참외,체리,키위,토마토,포도"},
+        {"고유ID":1,"가게이름":"안동상회","가게분류":"청과물","main_product":"귤,딸기,멜론,방울토마토,사과,수박,홍시"},
+        {"고유ID":2,"가게이름":"소문난반찬","가게분류":"가공식품","main_product":"갈치속젓,게장,명란젓,새우장,전복장,김치"},
+        {"고유ID":3,"가게이름":"한양상회","가게분류":"농산물","main_product":"깻잎),대파,버섯(느타리,새송이),시금치,쌈채소(상추,양파,쌀"},
+        {"고유ID":4,"가게이름":"대동상회","가게분류":"청과물","main_product":"거봉,멜론,복숭아,블루베리,사과,자두,캠벨포도"},
+        {"고유ID":5,"가게이름":"태영상회","가게분류":"청과물","main_product":"복숭아,수박,자두,참외,천도복숭아,포도"},
+        {"고유ID":7,"가게이름":"일호청과","가게분류":"청과물","main_product":"귤,망고,멜론,방울토마토,수박,참외,토마토,포도"},
+        {"고유ID":8,"가게이름":"청도상회","가게분류":"농산물","main_product":"고추,깻잎,마늘,부추,애호박,양파,오이,쪽파,호박잎"},
+        {"고유ID":9,"가게이름":"전국상회","가게분류":"청과물","main_product":"망고스틴,복숭아,블루베리,오렌지,자두,체리,파인애플"},
+        {"고유ID":10,"가게이름":"말구상회","가게분류":"농산물","main_product":"감자,고구마,고추,대파,버섯,상추,오이,호박,쌀"},
+        {"고유ID":11,"가게이름":"일품상회","가게분류":"농산물","main_product":"감자,고구마,고추,당근,마늘,배추,상추,생강,양파,오이"},
+        {"고유ID":12,"가게이름":"지리산","가게분류":"한약재","main_product":""},
+        {"고유ID":13,"가게이름":"중앙야채","가게분류":"농산물","main_product":""},
+        {"고유ID":16,"가게이름":"바다먹거리장터","가게분류":"수산물","main_product":"광어,꽃게,낙지,대게,랍스터,문어,연어,우럭,전복,조개,킹크랩,회,고등어"},
+        {"고유ID":24,"가게이름":"신토불이 축산물직판장","가게분류":"정육점","main_product":"가브리살,갈비살,닭고기,돼지특수부위,항정살,목살,삼겹살,소갈비,소고기국거리,소고기등심,오리고기,한우특수부위,살치살"},
+        {"고유ID":130,"가게이름":"경동함흥냉면","가게분류":"음식점(한식)","main_product":"갈비탕,만두,물냉면,비빔냉면,수육,회냉면,김치"},
+        {"고유ID":132,"가게이름":"대박정육점","가게분류":"정육점","main_product":"돼지갈매기살,돼지갈비,목살,삼겹살,소갈비,소고기국거리,소고기등심,소꼬리,안심,한우특수부위,채끝"},
+        {"고유ID":133,"가게이름":"우리축산","가게분류":"정육점","main_product":"양념갈비,대패삼겹살,삼겹살"},
+        {"고유ID":34,"가게이름":"거북이젓갈","가게분류":"반찬/김치","main_product":"갈치속젓,꼴뚜기젓,낙지젓,명란젓,새우젓,어리굴젓,오징어젓,창난젓,김치"},
+        {"고유ID":62,"가게이름":"금산인삼","가게분류":"가공식품","main_product":"더덕,도라지,산양삼,수삼,인삼,인삼주,홍삼액"},
+        {"고유ID":137,"가게이름":"그시절그맛","가게분류":"음식점(제과제빵)","main_product":"고로케,꽈배기,도너츠,맘모스빵,소시지빵,찐빵,찹쌀도넛"},
+        {"고유ID":81,"가게이름":"성현물산","가게분류":"농산물","main_product":"녹용,당귀,더덕,도라지,쑥,오미자,인삼,칡,홍삼,쌀"}
+    ];
+    
+    const storeData = marketData.map(store => {
+        const productNames = store.main_product ? store.main_product.split(',') : [];
+        const mainTags = productNames.slice(0, 2).map(tag => `#${tag.trim()}`).filter(tag => tag !== '#');
+        const products = productNames.map((productName, index) => {
+            if (!productName.trim()) return null;
+            const cleanName = productName.trim().replace(/[()]/g, '');
+            return {
+                id: `${store.고유ID}-${index}`, name: cleanName,
+                price: Math.floor(Math.random() * (300 - 50) + 50) * 100,
+                img: `https://placehold.co/100x100/E0E7FF/4338CA?text=${encodeURIComponent(cleanName.charAt(0))}`
+            };
+        }).filter(p => p !== null);
+        return {
+            id: store.고유ID, name: store.가게이름, category: store.가게분류,
+            mainTags: mainTags, rating: (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1),
+            orders: Math.floor(Math.random() * 500) + 10, reviews: [], products: products
+        };
+    });
+    
+    let shoppingCart = {};
+    let currentCategorySort = 'default';
+    let favoriteStores = [];
+    let completedOrders = []; 
+    let userRecipes = [];
+    const DEFAULT_MAP_URL = 'https://transcendent-crisp-6ebea8.netlify.app/';
+
+    // ==================== 서버 통신 함수 ====================
+    async function sendOrderToServer(orderData) {
+        try {
+            const response = await fetch('/api/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+            if (!response.ok) throw new Error((await response.json()).message || 'Server Error');
+            return await response.json();
+        } catch (error) {
+            console.error("Server submission failed:", error);
+            throw error;
+        }
+    }
+
+    // ==================== UI HELPER FUNCTIONS ====================
+    function showMessage(message) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content text-center">
+                <p class="text-gray-800 text-lg mb-6">${message}</p>
+                <button onclick="this.closest('.modal-overlay').remove()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">확인</button>
+            </div>`;
+        document.getElementById('modalContainer').appendChild(modal);
+    }
+
+    function showPromptBox(title, message, callback) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3 class="text-xl font-bold mb-4">${title}</h3>
+                <p class="text-gray-600 mb-4">${message}</p>
+                <input type="text" id="promptInput" value="${getStoredMapUrl()}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+                <div class="flex justify-end space-x-2">
+                    <button onclick="this.closest('.modal-overlay').remove()" class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">취소</button>
+                    <button id="promptConfirmBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">확인</button>
+                </div>
+            </div>`;
+        document.getElementById('modalContainer').appendChild(modal);
+        document.getElementById('promptConfirmBtn').addEventListener('click', () => {
+            const inputValue = document.getElementById('promptInput').value;
+            callback(inputValue);
+            modal.remove();
+        });
+    }
+    
+    function updateCartItemQuantity(storeId, productId, change) {
+        if (shoppingCart[storeId] && shoppingCart[storeId].items[productId]) {
+            const item = shoppingCart[storeId].items[productId];
+            item.quantity += change;
+            if (item.quantity <= 0) {
+                delete shoppingCart[storeId].items[productId];
+                if (Object.keys(shoppingCart[storeId].items).length === 0) {
+                    delete shoppingCart[storeId];
+                }
+            }
+        }
+        const existingModal = document.querySelector('.modal-overlay');
+        if (existingModal) {
+            const currentUserId = existingModal.querySelector('#userIdInput')?.value || '';
+            existingModal.remove();
+            showCartModal();
+            const newUserIdInput = document.querySelector('#userIdInput');
+            if(newUserIdInput) newUserIdInput.value = currentUserId;
+        }
+    }
+
+    function showCartModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        let cartItemsHtml = '', totalPrice = 0;
+        const cartIsEmpty = Object.keys(shoppingCart).length === 0;
+        if (cartIsEmpty) {
+            cartItemsHtml = `<p class="text-center text-gray-500 py-10">장바구니가 비어 있습니다.</p>`;
+        } else {
+            for (const storeId in shoppingCart) {
+                const store = shoppingCart[storeId];
+                let storeItemsHtml = '';
+                for (const productId in store.items) {
+                    const item = store.items[productId];
+                    totalPrice += item.price * item.quantity;
+                    storeItemsHtml += `
+                        <div class="flex items-center py-3 border-b last:border-b-0">
+                            <img src="${item.img}" alt="${item.name}" class="w-16 h-16 rounded-md mr-4">
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-800">${item.name}</p>
+                                <p class="text-gray-600 font-bold">${item.price.toLocaleString()}원</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="cart-quantity-btn w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center" data-store-id="${storeId}" data-product-id="${productId}" data-change="-1">-</button>
+                                <span class="w-8 text-center font-semibold">${item.quantity}</span>
+                                <button class="cart-quantity-btn w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center" data-store-id="${storeId}" data-product-id="${productId}" data-change="1">+</button>
+                            </div>
+                            <button class="ml-4 text-gray-400 hover:text-red-500 cart-delete-btn" data-store-id="${storeId}" data-product-id="${productId}"><i class="ph ph-x-circle text-2xl"></i></button>
+                        </div>`;
+                }
+                cartItemsHtml += `
+                    <div class="mb-4">
+                        <button class="flex items-center font-bold text-lg mb-2 store-link-from-cart" data-store-id="${storeId}">
+                            ${store.storeName} <i class="ph ph-caret-right ml-1"></i>
+                        </button>
+                        <div class="bg-gray-50 p-2 rounded-lg">${storeItemsHtml}</div>
+                    </div>`;
+            }
+        }
+        modal.innerHTML = `
+            <div class="modal-content flex flex-col h-full max-h-[80vh]">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">장바구니</h3>
+                    <button onclick="this.closest('.modal-overlay').remove()"><i class="ph ph-x text-2xl"></i></button>
+                </div>
+                <div class="flex-1 overflow-y-auto pr-2">${cartItemsHtml}</div>
+                <div class="border-t pt-4 mt-4">
+                    <div class="mb-4">
+                        <label for="userIdInput" class="block text-sm font-medium text-gray-700 mb-2">주문자 ID</label>
+                        <input type="text" id="userIdInput" placeholder="나중에 QR을 찾을 때 사용할 ID" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="text-right font-bold text-xl mb-4">총 결제금액: <span class="text-indigo-600">${totalPrice.toLocaleString()}원</span></div>
+                    <div class="flex flex-col space-y-2">
+                        <button id="checkoutBtn" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors ${cartIsEmpty ? 'opacity-50 cursor-not-allowed' : ''}" ${cartIsEmpty ? 'disabled' : ''}>결제하고 QR 생성하기</button>
+                    </div>
+                </div>
+            </div>`;
+        document.getElementById('modalContainer').appendChild(modal);
+        modal.addEventListener('click', e => {
+            const quantityBtn = e.target.closest('.cart-quantity-btn');
+            const deleteBtn = e.target.closest('.cart-delete-btn');
+            const storeLink = e.target.closest('.store-link-from-cart');
+            if (quantityBtn) {
+                const { storeId, productId, change } = quantityBtn.dataset;
+                updateCartItemQuantity(storeId, productId, parseInt(change));
+            } else if (deleteBtn) {
+                const { storeId, productId } = deleteBtn.dataset;
+                updateCartItemQuantity(storeId, productId, -Infinity);
+            } else if (storeLink) {
+                modal.remove();
+                showScreen('storeDetailScreen', { storeId: parseInt(storeLink.dataset.storeId), fromCategory: 'homeScreen' });
+            }
+        });
+        if (!cartIsEmpty) {
+            document.getElementById('checkoutBtn').addEventListener('click', handleCheckout);
+        }
+    }
+
+    // ==================== ROUTING & RENDERING ====================
+    function showScreen(screenId, param = null) {
+        const appContainer = document.getElementById('appContainer');
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === screenId));
+        if (screenId === 'mapScreen') {
+            appContainer.classList.remove('max-w-lg');
+            applyMarketMapUrl(getStoredMapUrl());
+        } else {
+            appContainer.classList.add('max-w-lg');
+        }
+        switch (screenId) {
+            case 'pickupScreen': renderPickupScreen(); break;
+            case 'myOrdersScreen': renderMyOrdersScreen(); break;
+            case 'favoritesScreen': renderFavoritesScreen(); break;
+            case 'categoryListScreen': if (param) renderCategoryList(param); break;
+            case 'storeDetailScreen': if (param) renderStoreDetail(param); break;
+            case 'smartShoppingScreen':
+                document.getElementById('smartSearchResultsContainer').innerHTML = '<p class="text-center text-gray-500 py-10">찾고 싶은 상품을 쉼표(,)로 구분하여 검색해 보세요.<br>또는 저장된 레시피를 이용해 보세요.</p>';
+                document.getElementById('smartSearchInput').value = '';
+                renderMyRecipes();
+                break;
+        }
+    }
+
+    function renderCategoryList(category) {
+         const container = document.getElementById('categoryStoreListContainer');
+         let stores;
+         if (category === 'all') {
+             document.getElementById('categoryTitle').textContent = '전체 가게';
+             stores = [...storeData]; 
+         } else {
+             document.getElementById('categoryTitle').textContent = category;
+             stores = storeData.filter(s => s.category === category);
+         }
+         container.innerHTML = '';
+         switch (currentCategorySort) {
+             case 'orders': stores.sort((a, b) => b.orders - a.orders); break;
+             case 'rating': stores.sort((a, b) => b.rating - a.rating); break;
+         }
+         if (stores.length === 0) {
+             container.innerHTML = `<p class="text-center text-gray-500 py-10">해당 카테고리의 가게가 없습니다.</p>`;
+             return;
+         }
+         stores.forEach(store => {
+             const isFavorited = favoriteStores.includes(store.id);
+             const tagsHtml = store.mainTags.map(tag => `<span class="bg-gray-200 text-gray-700 text-xs font-medium mr-2 px-2 py-1 rounded">${tag}</span>`).join('');
+             const card = document.createElement('div');
+             card.className = 'flex items-start bg-white p-4 rounded-lg border border-gray-200 relative';
+             card.innerHTML = `
+                 <img src="https://placehold.co/100x100/E0E7FF/4338CA?text=${encodeURIComponent(store.name.charAt(0))}" alt="${store.name}" class="w-24 h-24 rounded-md mr-4 cursor-pointer store-link" data-store-id="${store.id}" data-from-category="${category}">
+                 <div class="flex-1 cursor-pointer store-link" data-store-id="${store.id}" data-from-category="${category}">
+                     <h3 class="font-bold text-lg text-gray-900">${store.name}</h3>
+                     <div class="flex items-center text-sm text-gray-600 mt-1">
+                         <i class="ph ph-star text-yellow-400 text-base mr-1"></i><span class="font-bold">${store.rating}</span><span class="mx-1">|</span><span>리뷰 ${store.reviews.length}</span>
+                     </div>
+                     <div class="mt-2">${tagsHtml}</div>
+                 </div>
+                 <button class="absolute top-4 right-4 text-gray-400 favorite-btn ${isFavorited ? 'favorited' : ''}" data-store-id="${store.id}"><i class="ph ${isFavorited ? 'ph-heart-fill' : 'ph-heart'} text-3xl"></i></button>`;
+             container.appendChild(card);
+         });
+    }
+
+    function renderStoreDetail({ storeId, fromCategory }) {
+        const store = storeData.find(s => s.id === storeId);
+        if (!store) return;
+        const isFavorited = favoriteStores.includes(store.id);
+        const favBtn = document.getElementById('detailFavoriteBtn');
+        document.getElementById('storeDetailTitle').textContent = store.name;
+        document.getElementById('backToCategoryBtn').onclick = () => showScreen(fromCategory === 'favoritesScreen' ? 'favoritesScreen' : fromCategory === 'smartShoppingScreen' ? 'smartShoppingScreen' : 'categoryListScreen', fromCategory);
+        favBtn.dataset.storeId = store.id;
+        favBtn.className = `p-2 text-gray-400 favorite-btn ${isFavorited ? 'favorited' : ''}`;
+        favBtn.innerHTML = `<i class="ph ${isFavorited ? 'ph-heart-fill' : 'ph-heart'} text-3xl"></i>`;
+        document.getElementById('storeDetailInfo').innerHTML = `<div class="flex items-center"><img src="https://placehold.co/120x120/E0E7FF/4338CA?text=${encodeURIComponent(store.name.charAt(0))}" alt="${store.name}" class="w-28 h-28 rounded-lg mr-4"><div><h2 class="text-2xl font-bold">${store.name}</h2><div class="flex items-center text-lg text-gray-600 mt-2"><i class="ph ph-star-fill text-yellow-400 text-2xl mr-1"></i><span class="font-bold text-2xl">${store.rating}</span></div><p class="text-gray-500 mt-1">주문수 ${store.orders.toLocaleString()}</p></div></div>`;
+        const productListContainer = document.getElementById('storeProductListContainer');
+        productListContainer.innerHTML = '';
+        if (store.products && store.products.length > 0) {
+            store.products.forEach(product => {
+                const productEl = document.createElement('div');
+                productEl.className = 'flex items-center justify-between bg-gray-50 p-4 rounded-lg';
+                productEl.innerHTML = `
+                    <div class="flex items-center">
+                        <img src="${product.img}" alt="${product.name}" class="w-16 h-16 rounded-md mr-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${product.name}</h4>
+                            <p class="text-indigo-600 font-bold mt-1">${product.price.toLocaleString()}원</p>
+                        </div>
+                    </div>
+                    <button class="add-to-cart-btn px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700" data-store-id="${store.id}" data-store-name="${store.name}" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-product-img="${product.img}">담기</button>`;
+                productListContainer.appendChild(productEl);
+            });
+        } else {
+            productListContainer.innerHTML = `<p class="text-center text-gray-500 py-4">등록된 상품 정보가 없습니다.</p>`;
+        }
+        document.getElementById('storeReviewsContainer').innerHTML = `<p class="text-center text-gray-500">아직 작성된 리뷰가 없습니다.</p>`;
+    }
+    
+    function renderPickupScreen() {
+        const pickupScreenMain = document.getElementById('pickupScreenMain');
+        pickupScreenMain.innerHTML = `
+            <div class="border-b pb-6 mb-6">
+                <p class="text-center text-gray-600">장바구니에서 주문을 완료하면 픽업 QR코드가 여기에 즉시 표시됩니다.</p>
+            </div>
+            <div>
+                 <h3 class="text-lg font-bold text-gray-800 mb-4 text-center">또는, 이전 주문 조회하기</h3>
+                <div class="mb-4">
+                    <label for="viewUserIdInput" class="block text-sm font-medium text-gray-700 mb-2">주문자 ID</label>
+                    <input type="text" id="viewUserIdInput" placeholder="주문 시 입력한 ID를 입력하세요" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button onclick="fetchOrderQR()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">내 QR코드 조회하기</button>
+                <div id="fetchedQrContainer" class="mt-6"></div>
+            </div>`;
+    }
+
+    function renderMyOrdersScreen() {
+        const container = document.getElementById('myOrdersScreen').querySelector('main');
+        container.innerHTML = '';
+        if (completedOrders.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-500 p-10">주문 내역이 없습니다.</p>`;
+            return;
+        }
+        [...completedOrders].reverse().forEach(order => {
+             let orderItemsHtml = '';
+             for (const storeId in order.cart) {
+                 const store = order.cart[storeId];
+                 const itemNames = Object.values(store.items).map(item => `${item.name} ${item.quantity}개`).join('<br>');
+                 orderItemsHtml += `<div class="mt-2"><h4 class="font-semibold text-lg text-gray-800">${store.storeName}</h4><p class="text-gray-600 pl-1">${itemNames}</p></div>`;
+             }
+             const orderCard = document.createElement('div');
+             orderCard.className = 'bg-white p-4 rounded-lg border border-gray-200 shadow-sm';
+             orderCard.innerHTML = `
+                 <p class="text-sm text-gray-500 mb-2">${order.date} - 픽업</p>
+                 ${orderItemsHtml}
+                 <div class="border-t mt-4 pt-3 flex justify-between items-center">
+                     <span class="font-semibold text-gray-700">결제금액</span>
+                     <span class="font-bold text-lg text-gray-900">${order.totalPrice.toLocaleString()}원</span>
+                 </div>`;
+             container.appendChild(orderCard);
+        });
+    }
+
+    function renderFavoritesScreen() {
+        const container = document.getElementById('favoritesScreen').querySelector('main');
+        container.innerHTML = '';
+        const favoriteStoreDetails = storeData.filter(store => favoriteStores.includes(store.id));
+        if (favoriteStoreDetails.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-500 p-10">찜한 가게가 없습니다.</p>`;
+            return;
+        }
+        favoriteStoreDetails.forEach(store => {
+            const tagsHtml = store.mainTags.map(tag => `<span class="bg-gray-200 text-gray-700 text-xs font-medium mr-2 px-2 py-1 rounded">${tag}</span>`).join('');
+            const card = document.createElement('div');
+            card.className = 'flex items-start bg-white p-4 rounded-lg border border-gray-200 relative';
+            card.innerHTML = `<img src="https://placehold.co/100x100/E0E7FF/4338CA?text=${encodeURIComponent(store.name.charAt(0))}" alt="${store.name}" class="w-24 h-24 rounded-md mr-4 cursor-pointer store-link" data-store-id="${store.id}" data-from-category="favoritesScreen"><div class="flex-1 cursor-pointer store-link" data-store-id="${store.id}" data-from-category="favoritesScreen"><h3 class="font-bold text-lg text-gray-900">${store.name}</h3><div class="flex items-center text-sm text-gray-600 mt-1"><i class="ph ph-star text-yellow-400 text-base mr-1"></i> <span class="font-bold">${store.rating}</span></div><div class="mt-2">${tagsHtml}</div></div><button class="absolute top-4 right-4 text-gray-400 favorite-btn favorited" data-store-id="${store.id}"><i class="ph ph-heart-fill text-3xl"></i></button>`;
+            container.appendChild(card);
+        });
+    }
+
+    // ==================== 핵심 주문 로직 ====================
+    async function handleCheckout() {
+        const userIdInput = document.getElementById('userIdInput');
+        if (!userIdInput) return; // Prevent errors if modal is closed prematurely
+        
+        const userId = userIdInput.value.trim();
+        if (!userId) return showMessage('주문자 ID를 입력해주세요.');
+
+        const orderData = { userId, cart: shoppingCart, timestamp: new Date().toISOString() };
+        try {
+            await sendOrderToServer(orderData);
+            const totalPrice = Object.values(shoppingCart).map(s => Object.values(s.items).reduce((sum, item) => sum + (item.price * item.quantity), 0)).reduce((acc, val) => acc + val, 0);
+            completedOrders.push({ ...orderData, totalPrice, date: new Date().toLocaleDateString('ko-KR') });
+            
+            const qrDataString = JSON.stringify(orderData);
+            shoppingCart = {};
+            document.querySelector('.modal-overlay')?.remove();
+            
+            const pickupScreenMain = document.getElementById('pickupScreenMain');
+            pickupScreenMain.innerHTML = `
+                <div class="bg-gray-50 p-6 rounded-lg text-center">
+                    <h2 class="text-lg font-semibold text-gray-800">픽업 준비 완료!</h2>
+                    <p class="text-gray-500 mt-1">ID: <span class="font-bold text-indigo-600">${userId}</span></p>
+                    <div id="generated-qrcode" class="mt-4 flex justify-center"></div>
+                    <p class="mt-4 text-sm">이 QR코드를 픽업 센터에 보여주세요.</p>
+                </div>`;
+            new QRCode(document.getElementById('generated-qrcode'), { text: qrDataString, width: 200, height: 200 });
+            
+            showScreen('pickupScreen'); // Switch screen after content is ready
+        } catch (error) {
+            showMessage(`주문 처리 중 오류가 발생했습니다: ${error.message}`);
+        }
+    }
+
+    async function fetchOrderQR() {
+        const container = document.getElementById('fetchedQrContainer');
+        if (!container) { // Ensure the container exists on the current screen
+             const pickupScreenMain = document.getElementById('pickupScreenMain');
+             pickupScreenMain.innerHTML += '<div id="fetchedQrContainer" class="mt-6"></div>';
+             container = document.getElementById('fetchedQrContainer');
+        }
+
+        const userId = document.getElementById('viewUserIdInput').value.trim();
+        if (!userId) return showMessage('조회할 사용자 ID를 입력해주세요.');
+        container.innerHTML = '<p class="text-center text-gray-500 p-4">서버에서 주문 정보를 찾는 중...</p>';
+        try {
+            const response = await fetch(`/api/get-order/${userId}`);
+            const data = await response.json();
+            if (data.success) {
+                const order = data.order;
+                const qrDataString = JSON.stringify(order);
+                container.innerHTML = `
+                    <div class="bg-gray-50 p-6 rounded-lg text-center">
+                        <h2 class="text-lg font-semibold text-gray-800">주문 정보 확인</h2>
+                        <p class="text-gray-500 mt-1">ID: <span class="font-bold text-indigo-600">${order.userId}</span></p>
+                        <div id="fetched-qrcode" class="mt-4 flex justify-center"></div>
+                    </div>`;
+                new QRCode(document.getElementById('fetched-qrcode'), { text: qrDataString, width: 200, height: 200 });
+            } else {
+                container.innerHTML = `<p class="text-center text-red-500 font-semibold p-4">${data.message}</p>`;
+            }
+        } catch (error) {
+            container.innerHTML = `<p class="text-center text-red-500 font-semibold p-4">서버와 통신 중 오류가 발생했습니다.</p>`;
+        }
+    }
+    
+    // ==================== 지도, 레시피, 기타 함수들 ====================
+    function getStoredMapUrl() { return localStorage.getItem('marketMapUrl') || DEFAULT_MAP_URL; }
+    function setMarketMapUrl(url) { try { new URL(url); localStorage.setItem('marketMapUrl', url); applyMarketMapUrl(url); showMessage('지도 URL이 변경되었습니다.');} catch (e) { showMessage('올바른 URL 형식이 아닙니다.');} }
+    function applyMarketMapUrl(url) {
+        const frame = document.getElementById('marketMapFrame');
+        const newTabLink = document.getElementById('openMapNewTab');
+        const loading = document.getElementById('mapLoading');
+        loading.style.display = 'flex';
+        frame.style.display = 'none';
+        frame.src = url;
+        newTabLink.href = url;
+    }
+    function toggleFavorite(storeId) {
+        const storeIdNum = parseInt(storeId, 10);
+        const index = favoriteStores.indexOf(storeIdNum);
+        if (index > -1) { favoriteStores.splice(index, 1); } else { favoriteStores.push(storeIdNum); }
+        document.querySelectorAll(`.favorite-btn[data-store-id="${storeIdNum}"]`).forEach(btn => {
+            const isFavorited = favoriteStores.includes(storeIdNum);
+            btn.classList.toggle('favorited', isFavorited);
+            const icon = btn.querySelector('i');
+            if (icon) { icon.className = `ph ${isFavorited ? 'ph-heart-fill' : 'ph-heart'} text-3xl`; }
+        });
+        if (document.getElementById('favoritesScreen').classList.contains('active')) { renderFavoritesScreen(); }
+    }
+    function loadRecipesFromStorage() { /* ... */ }
+    function saveRecipesToStorage() { /* ... */ }
+    function renderMyRecipes() { /* ... */ }
+    function showRecipeModal(recipeId = null) { /* ... */ }
+    function addIngredientField(name = '', request = '') { /* ... */ }
+    function saveRecipe() { /* ... */ }
+    function deleteRecipe() { /* ... */ }
+    
+    // ==================== 이벤트 리스너 및 초기화 ====================
+    function setupAllEventListeners() {
+        document.body.addEventListener('click', (e) => {
+            const addToCartBtn = e.target.closest('.add-to-cart-btn');
+            const favoriteBtn = e.target.closest('.favorite-btn');
+            const storeLink = e.target.closest('.store-link');
+            const accordionToggle = e.target.closest('.smart-accordion-toggle');
+            if (addToCartBtn) {
+                const { storeId, storeName, productId, productName, productPrice, productImg } = addToCartBtn.dataset;
+                addToCart(storeId, storeName, productId, productName, parseInt(productPrice), productImg);
+                showMessage(`'${productName}' 상품을 장바구니에 담았습니다!`);
+            } else if (favoriteBtn) {
+                toggleFavorite(favoriteBtn.dataset.storeId);
+            } else if (storeLink) {
+                showScreen('storeDetailScreen', { storeId: parseInt(storeLink.dataset.storeId), fromCategory: storeLink.dataset.fromCategory });
+            } else if (accordionToggle) {
+                const content = accordionToggle.nextElementSibling;
+                const icon = accordionToggle.querySelector('i');
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+            }
+        });
+        document.querySelectorAll('.nav-btn').forEach(button => {
+            button.addEventListener('click', (e) => showScreen(e.currentTarget.dataset.screen));
+        });
+        document.getElementById('marketMapFrame').addEventListener('load', () => {
+            document.getElementById('mapLoading').style.display = 'none';
+            document.getElementById('marketMapFrame').style.display = 'block';
+        });
+        document.getElementById('homeSearchInput').addEventListener('keypress', (e) => {
+             if (e.key === 'Enter' && e.target.value.trim() !== "") {
+                 const searchTerm = e.target.value.trim();
+                 const foundStore = storeData.find(store => store.name.includes(searchTerm));
+                 if (foundStore) {
+                     showScreen('storeDetailScreen', { storeId: foundStore.id, fromCategory: 'all' });
+                 } else { showMessage('해당하는 가게를 찾을 수 없습니다.'); }
+             }
+        });
+        document.getElementById('smartSearchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSmartSearch();
+        });
+    }
+
+    window.showMessage = showMessage;
+    window.showCartModal = showCartModal;
+    window.showScreen = showScreen;
+    window.fetchOrderQR = fetchOrderQR;
+    window.showPromptBox = showPromptBox;
+    window.setMarketMapUrl = setMarketMapUrl;
+    window.showRecipeModal = showRecipeModal;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadRecipesFromStorage();
+        setupAllEventListeners();
+        showScreen('homeScreen');
+    });
+})();
+</script>
 </body>
 </html>
