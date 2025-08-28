@@ -34,7 +34,7 @@
                 const data = await response.json();
                 if (data.success) {
                     const order = data.order;
-                    const qrDataString = JSON.stringify(order);
+                    const qrDataString = order.userId; // ⭐️ 주문 정보 전체가 아닌 ID만 QR코드로 만듭니다.
                     let itemsHtml = '';
                     for (const storeId in order.cart) {
                         const store = order.cart[storeId];
