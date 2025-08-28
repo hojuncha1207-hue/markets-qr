@@ -30,28 +30,14 @@
             }
             container.innerHTML = '<p>서버에서 주문 정보를 찾는 중...</p>';
             try {
-                // 서버 주소가 같으므로 상대 경로로 API 호출
                 const response = await fetch(`/api/get-order/${userId}`);
                 const data = await response.json();
                 if (data.success) {
                     const order = data.order;
                     
-                    // QR코드에는 'ID + 핵심 요약 정보'만 담습니다.
-                    const qrSummary = {
-                        userId: order.userId,
-                        items: {}
-                    };
-                    for (const storeId in order.cart) {
-                        const store = order.cart[storeId];
-                        qrSummary.items[store.storeName] = [];
-                        for (const productId in store.items) {
-                            const item = store.items[productId];
-                            qrSummary.items[store.storeName].push(`${item.name}(${item.quantity}개)`);
-                        }
-                    }
-                    const qrDataString = JSON.stringify(qrSummary);
+                    // ⭐️ QR코드에는 주문자 ID만 담습니다.
+                    const qrDataString = order.userId;
 
-                    // 화면에는 전체 상세 내역을 표시합니다.
                     let itemsHtml = '';
                     for (const storeId in order.cart) {
                         const store = order.cart[storeId];
