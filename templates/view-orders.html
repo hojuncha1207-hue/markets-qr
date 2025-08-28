@@ -22,14 +22,21 @@
     </div>
     <script>
         async function fetchOrderQR() {
-    // ... (userId 가져오기, 서버에 데이터 요청하는 부분은 동일) ...
+            const container = document.getElementById('order-container');
+            const userId = document.getElementById('viewUserIdInput').value.trim();
+            if (!userId) { 
+                alert('조회할 사용자 ID를 입력해주세요.'); 
+                return; 
+            }
+            container.innerHTML = '<p>서버에서 주문 정보를 찾는 중...</p>';
             try {
                 const response = await fetch(`/api/get-order/${userId}`);
                 const data = await response.json();
                 if (data.success) {
                     const order = data.order;
-
-            // 1. ⭐️ QR코드에 담을 '핵심 요약 정보'를 새로 만듭니다. ⭐️
+                    
+                    // ⭐️⭐️⭐️ 수정된 부분 ⭐️⭐️⭐️
+                    // 1. QR코드에 담을 '핵심 요약 정보'를 새로 만듭니다.
                     const qrSummary = {
                         userId: order.userId,
                         items: {}
@@ -42,26 +49,38 @@
                             qrSummary.items[store.storeName].push(`${item.name}(${item.quantity}개)`);
                         }
                     }
-        
-            // 2. '핵심 요약 정보'를 텍스트로 변환하여 QR코드를 생성합니다.
-                     const qrDataString = JSON.stringify(qrSummary);
 
-            // 3. 화면에는 전체 상세 내역과 QR코드를 함께 표시합니다.
+                    // 2. '핵심 요약 정보'를 텍스트로 변환하여 QR코드를 생성합니다.
+                    const qrDataString = JSON.stringify(qrSummary);
+
+                    // 3. 화면에는 전체 상세 내역과 새로운 QR코드를 함께 표시합니다.
                     let itemsHtml = '';
-            // ... (상세 내역을 보여주는 HTML 생성 로직은 동일) ...
-                    container.innerHTML = `...`; // QR 및 상세 내역 표시 HTML
+                    for (const storeId in order.cart) {
+                        const store = order.cart[storeId];
+                        const itemNames = Object.values(store.items).map(item => `${item.name}(${item.quantity}개)`).join(', ');
+                        itemsHtml += `<p style="margin: 0.5rem 0;"><strong>${store.storeName}:</strong> ${itemNames}</p>`;
+                    }
+
+                    container.innerHTML = `
+                        <div id="fetched-qrcode" class="flex justify-center"></div>
+                        <h3 style="margin-top: 1rem;">주문자 ID: ${order.userId}</h3>
+                        <div style="text-align: left; margin-top: 1rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                            <h4><strong>주문 내역</strong></h4>
+                            ${itemsHtml}
+                        </div>
+                    `;
                     new QRCode(document.getElementById("fetched-qrcode"), {
                         text: qrDataString,
                         width: 256,
                         height: 256,
                     });
                 } else {
-            // ... (오류 처리)
+                    container.innerHTML = `<p style="color:red;">${data.message}</p>`;
                 }
             } catch (error) {
-        // ... (오류 처리)
+                container.innerHTML = `<p style="color:red;">서버와 통신 중 오류가 발생했습니다.</p>`;
             }
         }
-</script>
+    </script>
 </body>
 </html>
