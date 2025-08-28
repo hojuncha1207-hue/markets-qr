@@ -592,16 +592,19 @@
 
     // ==================== 핵심 주문 로직 ====================
     async function handleCheckout() {
-        const userId = document.getElementById('userIdInput').value.trim();
+        const userIdInput = document.getElementById('userIdInput');
+        if (!userIdInput) return;
+
+        const userId = userIdInput.value.trim();
         if (!userId) return showMessage('주문자 ID를 입력해주세요.');
 
-    // 1. 서버에 보낼 전체 주문 데이터는 그대로 유지합니다.
         const orderData = { userId, cart: shoppingCart, timestamp: new Date().toISOString() };
-
+    
         try {
+        // 1. 서버로 전체 주문 정보를 먼저 보냅니다.
             await sendOrderToServer(orderData);
-
-        // 2. ⭐️ QR코드에 담을 '핵심 요약 정보'를 새로 만듭니다. ⭐️
+        
+        // 2. QR코드에 담을 '핵심 요약 정보'를 새로 만듭니다.
             const qrSummary = {
                 userId: orderData.userId,
                 items: {}
@@ -614,21 +617,40 @@
                     qrSummary.items[store.storeName].push(`${item.name}(${item.quantity}개)`);
                 }
             }
-    
-        // 3. '핵심 요약 정보'를 텍스트로 변환하여 QR코드를 생성합니다.
+        
+        // 3. '핵심 요약 정보'를 텍스트로 변환하여 QR코드 데이터로 사용합니다.
             const qrDataString = JSON.stringify(qrSummary);
 
-        // ... (이하 장바구니 비우기, 화면 전환 및 QR 표시 로직은 동일) ...
-
+        // 4. 주문이 성공하면 로컬 장바구니를 비우고 모달을 닫습니다.
+            const totalPrice = Object.values(shoppingCart).map(s => Object.values(s.items).reduce((sum, item) => sum + (item.price * item.quantity), 0)).reduce((acc, val) => acc + val, 0);
+            completedOrders.push({ ...orderData, totalPrice, date: new Date().toLocaleDateString('ko-KR') });
             shoppingCart = {};
             document.querySelector('.modal-overlay')?.remove();
+        
+        // 5. QR코드를 표시할 'pickupScreen' 화면으로 먼저 전환합니다. (appendChild 오류 해결)
             showScreen('pickupScreen');
-
+        
+        // 6. 이제 화면이 표시되었으므로, 안심하고 내부 요소를 찾아 QR코드를 생성합니다.
             const pickupScreenMain = document.getElementById('pickupScreenMain');
-            pickupScreenMain.innerHTML = `...`; // QR 표시 HTML
-            new QRCode(document.getElementById('generated-qrcode'), { text: qrDataString, width: 200, height: 200 });
-
-            document.getElementById('viewUserIdInput').value = userId;
+            pickupScreenMain.innerHTML = `
+                <div class="bg-gray-50 p-6 rounded-lg text-center">
+                    <h2 class="text-lg font-semibold text-gray-800">픽업 준비 완료!</h2>
+                    <p class="text-gray-500 mt-1">ID: <span class="font-bold text-indigo-600">${userId}</span></p>
+                    <div id="generated-qrcode" class="mt-4 flex justify-center"></div>
+                    <p class="mt-4 text-sm">이 QR코드를 픽업 센터에 보여주세요.</p>
+                </div>`;
+            
+            new QRCode(document.getElementById('generated-qrcode'), {
+                text: qrDataString,
+                width: 200,
+                height: 200
+            });
+            
+        // 7. QR 조회 화면에 방금 주문한 ID를 자동으로 입력해줍니다.
+            const viewUserIdInput = document.getElementById('viewUserIdInput');
+            if (viewUserIdInput) {
+                viewUserIdInput.value = userId;
+            }
 
         } catch (error) {
             showMessage(`주문 처리 중 오류가 발생했습니다: ${error.message}`);
@@ -759,5 +781,6 @@
 </script>
 </body>
 </html>
+
 
 
