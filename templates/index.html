@@ -587,8 +587,7 @@
             const totalPrice = Object.values(shoppingCart).map(s => Object.values(s.items).reduce((sum, item) => sum + (item.price * item.quantity), 0)).reduce((acc, val) => acc + val, 0);
             completedOrders.push({ ...orderData, totalPrice, date: new Date().toLocaleDateString('ko-KR') });
             
-            const qrDataString = JSON.stringify(orderData);
-            shoppingCart = {};
+            const qrDataString = orderData.userId; // ⭐️ 주문 정보 전체가 아닌 ID만 QR코드로 만듭니다.            shoppingCart = {};
             document.querySelector('.modal-overlay')?.remove();
             
             const pickupScreenMain = document.getElementById('pickupScreenMain');
@@ -731,3 +730,4 @@
 </script>
 </body>
 </html>
+
