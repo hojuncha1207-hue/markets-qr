@@ -30,7 +30,6 @@
             }
             container.innerHTML = '<p>서버에서 주문 정보를 찾는 중...</p>';
             try {
-                // 서버 주소가 같으므로 상대 경로로 API 호출
                 const response = await fetch(`/api/get-order/${userId}`);
                 const data = await response.json();
                 if (data.success) {
@@ -42,7 +41,6 @@
                         const itemNames = Object.values(store.items).map(item => `${item.name}(${item.quantity}개)`).join(', ');
                         itemsHtml += `<p style="margin: 0.5rem 0;"><strong>${store.storeName}:</strong> ${itemNames}</p>`;
                     }
-
                     container.innerHTML = `
                         <div id="fetched-qrcode" class="flex justify-center"></div>
                         <h3 style="margin-top: 1rem;">주문자 ID: ${order.userId}</h3>
